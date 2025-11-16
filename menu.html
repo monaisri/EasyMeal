@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>เมนู - FoodOrder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">FoodOrder</div>
+    <div class="top-actions">
+      <span id="userLabel" class="user-label hidden"></span>
+      <button class="btn small" onclick="location.href='index.html'">กลับหน้าหลัก</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <h2 id="shopTitle">ร้านอาหาร</h2>
+
+    <div class="menuLayout">
+      <div class="menuColumn" id="menuList"></div>
+
+      <aside class="summaryColumn">
+        <div class="summaryCard">
+          <h3>สรุปรายการ</h3>
+          <div id="orderSummary"><i>ยังไม่เลือกเมนู</i></div>
+
+          <label for="noteArea">หมายเหตุลูกค้า</label>
+          <textarea id="noteArea" placeholder="เช่น ไม่ใส่ผัก / ไม่เอาไข่ดาวสุก"></textarea>
+
+          <div class="tickGroup">
+            <p>รูปแบบการรับ :</p>
+            <label class="tick"><input type="checkbox" id="eatHere" onchange="toggleExclusive('eatHere','takeAway')"> ทานที่ร้าน</label>
+            <label class="tick"><input type="checkbox" id="takeAway" onchange="toggleExclusive('takeAway','eatHere')"> รับกลับบ้าน</label>
+          </div>
+          
+          <div class="summaryFooter">
+            <div class="totalLine">รวม: <span id="totalPrice">0</span> บาท</div>
+            <div style="display:flex;gap:8px;margin-top:6px">
+              <button class="btn" onclick="goToPayment()">ไปชำระเงิน</button>
+              <button class="btn ghost" onclick="clearCart()">ล้างตะกร้า</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+<script>
+let user = localStorage.getItem('user');
+document.getElementById('userLabel').innerText = user || 'Guest';
+if(user) document.getElementById('userLabel').classList.remove('hidden');
+
+const urlParams = new URLSearchParams(window.location.search);
+let shop = urlParams.get('shop') || 'somtum';
+
+const shopNamesTH = {
+  somtum: "ร้านส้มตำ",
+  tamsang: "ร้านตามสั่ง",
+  noodle: "ร้านก๋วยเตี๋ยว",
+  friedchicken: "ร้านไก่ทอด",
+  dessert: "ร้านของหวาน",
+};
+
+// 🌟 ปรับโครงสร้างเมนูให้ใช้ชื่อเมนูเป็น Key และเพิ่ม img สำหรับควบคุมรูปภาพ
+const menus = {
+  somtum: {
+    'ตำไทย': { price: 50, img: 'somtum/ตำไทย.jpg' }, 
+    'ตำปูปลาร้า': { price: 60, img: 'somtum/ตำปูปลาร้า.webp' }, 
+    'คอหมูย่าง': { price: 70, img: 'somtum/คอหมูย่าง.jpg' }, 
+    'ข้าวเหนียว': { price: 10, img: 'somtum/ข้าวเหนียว.jpg' }
+  },
+  tamsang: {
+    'ข้าวผัดกะเพราหมูกรอบ': { price: 55, img: 'ตามสั่ง/กะเพราหมูกรอบ.jpg' }, 
+    'ข้าวผัดหมูสับ': { price: 50, img: 'ตามสั่ง/ข้าวผัดหมูสับ.webp' }, 
+    'ผัดซีอิ๊วหมู': { price: 55, img: 'ตามสั่ง/ผัดซีอิ๊ว.jpg' }, 
+    'ผัดมาม่า': { price: 50, img: 'ตามสั่ง/ผัดมาม่า.jpg' }, 
+    'ไข่ดาว': { price: 10, img: 'ตามสั่ง/ไข่ดาว.webp' }
+  },
+  noodle: {
+    'บะหมี่น้ำหมูแดง': { price: 50, img: 'noodle/น้ำหมูแดง.jpg' }, 
+    'เย็นตาโฟ': { price: 60, img: 'noodle/เย็นตาโฟ.jpg' }, 
+    'ก๋วยเตี๋ยวเรือ': { price: 55, img: 'noodle/เต๋วเรือ.jpg' }, 
+    'เกาเหลา': { price: 60, img: 'noodle/เกาเหลา.jpg' }
+  },
+  friedchicken: {
+    'น่องไก่ทอด 2 ชิ้น': { price: 40, img: 'friedchicken/น่องไก่.webp' }, 
+    'นักเก็ตไก่': { price: 55, img: 'friedchicken/นักเก็ต.jpg' }, 
+    'ปีกไก่ทอด': { price: 25, img: 'friedchicken/ปีกไก่.webp' },
+    'ข้าวเหนียว': { price: 10, img: 'friedchicken/ข้าวเหนียว.jpg' }
+  },
+  dessert: {
+    'บิงซู นมสด': { price: 70, img: 'dessert/นมสด.jpg' }, 
+    'บิงซู โอวัลติน': { price: 70, img: 'dessert/โอวัลติน.jpg' }, 
+    'บิงซู มัจฉะ': { price: 70, img: 'dessert/มัจฉะ.jpg' },
+  }
+};
+
+let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+renderMenu();
+renderSummary();
+
+function renderMenu(){
+  const list = document.getElementById('menuList');
+  document.getElementById('shopTitle').innerText = shopNamesTH[shop];
+  list.innerHTML = '';
+
+  // ใช้ Object.entries เพื่อวนลูปเอาทั้งชื่อเมนู (menuName) และรายละเอียด (item)
+  // idx (index ชั่วคราว) ใช้สำหรับอ้างอิง id ของปุ่มเพิ่ม/ลดจำนวน
+  Object.entries(menus[shop]).forEach(([menuName, item], idx) => {
+    const div = document.createElement('div');
+    div.className = 'menuCard';
+    div.innerHTML = `
+      <div class="imgBox">
+        <img src="img/${item.img}" class="menuImg">
+      </div>
+
+      <div class="menuInfo">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong>${menuName}</strong>
+          <span style="color:#666">${item.price} บาท</span>
+        </div>
+
+        <div class="qtyRow">
+          <button class="smallBtn" onclick="decQty(${idx})">–</button>
+          <div>จำนวน: <span id="qty-${idx}">0</span></div>
+          <button class="smallBtn" onclick="incQty(${idx})">+</button>
+
+          <label class="tick">
+            <input type="checkbox" id="special-${idx}"> พิเศษ (+10 ฿)
+          </label>
+
+          <button class="btn small" onclick="addToCart('${menuName}')">เพิ่ม</button>
+        </div>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+// ใช้งานได้เหมือนเดิม เพราะใช้ idx ที่สร้างขึ้นชั่วคราวในการอ้างอิง
+function incQty(idx){
+  const qtyEl = document.getElementById(`qty-${idx}`);
+  qtyEl.innerText = parseInt(qtyEl.innerText) + 1;
+}
+
+function decQty(idx){
+  const qtyEl = document.getElementById(`qty-${idx}`);
+  let q = parseInt(qtyEl.innerText);
+  if(q > 0) qtyEl.innerText = q - 1;
+}
+
+// 🌟 ปรับให้รับชื่อเมนู (menuName) และใช้เป็น Key หลักในตะกร้า
+function addToCart(menuName){
+  // ต้องหา index ชั่วคราวกลับมาเพื่ออ้างอิง id ของ qty และ special
+  let tempIndex = Object.keys(menus[shop]).indexOf(menuName); 
+
+  const qty = parseInt(document.getElementById(`qty-${tempIndex}`).innerText);
+  const specialChecked = document.getElementById(`special-${tempIndex}`).checked;
+
+  if(qty <= 0){
+    alert("กรุณาเลือกจำนวนก่อน");
+    return;
+  }
+
+  // ค้นหาในตะกร้าด้วย menuName แทน index
+  const itemIndex = cart.findIndex(it => it.menuName === menuName && it.shop === shop); 
+
+  if(itemIndex > -1){
+    cart[itemIndex].qty += qty;
+    cart[itemIndex].special = specialChecked;
+  } else {
+    // เก็บ menuName ไว้ในตะกร้า
+    cart.push({menuName: menuName, shop: shop, qty: qty, special: specialChecked}); 
+  }
+
+  // เคลียร์จำนวนที่เลือก
+  document.getElementById(`qty-${tempIndex}`).innerText = 0; 
+
+  saveAndRender();
+}
+
+function saveAndRender(){
+  localStorage.setItem('cart', JSON.stringify(cart));
+  renderSummary();
+}
+
+// 🌟 ปรับให้ดึงข้อมูลเมนูจากชื่อเมนู (menuName)
+function renderSummary(){
+  const summary = document.getElementById('orderSummary');
+  const totalDisplay = document.getElementById('totalPrice');
+
+  if(cart.length === 0){
+    summary.innerHTML = '<i>ยังไม่เลือกเมนู</i>';
+    totalDisplay.innerText = '0';
+    return;
+  }
+
+  let total = 0;
+  let html = '';
+
+  cart.forEach(it => {
+    // ดึงรายละเอียดเมนูด้วยชื่อเมนู (it.menuName)
+    const item = menus[shop][it.menuName];
+    
+    // หากเมนูถูกลบไปแล้ว ให้ข้ามรายการนี้
+    if (!item) return; 
+    
+    const special = it.special ? 10 : 0;
+    const sum = (item.price + special) * it.qty;
+    total += sum;
+
+    html += `
+      <div style="display:flex;justify-content:space-between">
+        <div>${it.menuName} x${it.qty} ${it.special ? '(พิเศษ)' : ''}</div>
+        <div>${sum} ฿</div>
+      </div>
+    `;
+  });
+
+  summary.innerHTML = html;
+  totalDisplay.innerText = total.toLocaleString();
+}
+
+function clearCart(){
+  if(!confirm("ต้องการล้างตะกร้าหรือไม่?")) return;
+  cart = [];
+  saveAndRender();
+}
+
+function toggleExclusive(a,b){
+  if(document.getElementById(a).checked)
+      document.getElementById(b).checked = false;
+}
+
+function goToPayment(){
+  if(cart.length === 0){
+    alert("กรุณาเลือกเมนูก่อนสั่ง");
+    return;
+  }
+
+  const note = document.getElementById('noteArea').value;
+
+  const data = {
+    shop,
+    cart, // cart ที่มี menuName แทน index
+    note,
+    eatHere: document.getElementById('eatHere').checked,
+    takeAway: document.getElementById('takeAway').checked
+  };
+
+  localStorage.setItem('orderDraft', JSON.stringify(data));
+  location.href = 'payment.html';
+}
+</script>
+</body>
+</html>

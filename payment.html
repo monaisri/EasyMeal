@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ชำระเงิน - FoodOrder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">FoodOrder</div>
+    <div class="top-actions">
+      <button class="btn small" onclick="location.href='menu.html'">ย้อนกลับ</button>
+      <button class="btn small" onclick="location.href='index.html'">หน้าหลัก</button>
+    </div>
+  </header>
+
+  <main class="wide-container">
+    <h2>ยืนยันการชำระ</h2>
+    <div id="summaryBox"></div>
+
+    <p>เลือกวิธีชำระเงิน:</p>
+    <label class="tick"><input type="checkbox" id="payQR" onchange="togglePay('qr')"> ชำระด้วย QR</label>
+    <label class="tick"><input type="checkbox" id="payCash" onchange="togglePay('cash')"> ชำระเงินสดที่เคาน์เตอร์</label>
+
+    <button class="btn" style="margin-top:14px" onclick="confirmPayment()">ยืนยันการชำระเงิน</button>
+
+  </main>
+
+<script>
+const draft = JSON.parse(localStorage.getItem('orderDraft') || 'null');
+if(!draft){
+  alert("ไม่พบคำสั่งซื้อ กรุณากลับไปเลือกเมนู");
+  location.href = "menu.html";
+}
+
+// 🌟 ปรับโครงสร้างเมนูให้ใช้ชื่อเมนูเป็น Key (เหมือนใน menu.html)
+const menus = {
+  somtum: {
+    'ตำไทย': { price: 50 }, 
+    'ตำปูปลาร้า': { price: 60 }, 
+    'คอหมูย่าง': { price: 70 }, 
+    'ข้าวเหนียว': { price: 10 }
+  },
+  tamsang: {
+    'ข้าวผัดกะเพราหมูกรอบ': { price: 55 }, 
+    'ข้าวผัดหมูสับ': { price: 50 }, 
+    'ผัดซีอิ๊วหมู': { price: 55 }, 
+    'ผัดมาม่า': { price: 50 }, 
+    'ไข่ดาว': { price: 10 }
+  },
+  noodle: {
+    'บะหมี่น้ำหมูแดง': { price: 50 }, 
+    'เย็นตาโฟ': { price: 60 }, 
+    'ก๋วยเตี๋ยวเรือ': { price: 55 }, 
+    'เกาเหลา': { price: 60 }
+  },
+  friedchicken: {
+    'น่องไก่ทอด 2 ชิ้น': { price: 40 }, 
+    'นักเก็ตไก่': { price: 55 }, 
+    'ปีกไก่ทอด': { price: 25 },
+    'ข้าวเหนียว': { price: 10 }
+  },
+  dessert: {
+    'บิงซู นมสด': { price: 70 }, 
+    'บิงซู โอวัลติน': { price: 70 }, 
+    'บิงซู มัจฉะ': { price: 70 },
+  }
+};
+
+// --- สรุปคำสั่งซื้อ ---
+let html = "<ul>";
+let total = 0;
+
+draft.cart.forEach(it=>{
+  // 🌟 เปลี่ยนการดึงข้อมูลจาก it.index เป็น it.menuName
+  const item = menus[draft.shop][it.menuName];
+  
+  // ป้องกันข้อผิดพลาดหากไม่พบเมนู
+  if (!item) return; 
+
+  let special = it.special ? 10 : 0;
+  let sum = (item.price + special) * it.qty;
+  total += sum;
+
+  // 🌟 ใช้ it.menuName สำหรับแสดงชื่อเมนู
+  html += `<li>${it.menuName} x${it.qty} ${it.special ? "(พิเศษ)" : ""} — ${sum} บาท</li>`;
+});
+html += "</ul>";
+html += `<p><strong>รวมทั้งหมด: ${total} บาท</strong></p>`;
+
+if(draft.note) html += `<p>หมายเหตุ: <i>${draft.note}</i></p>`;
+
+// แสดงรูปแบบการรับ
+let pickUpType = '';
+if(draft.eatHere && draft.takeAway) {
+    pickUpType = 'ทานที่ร้าน และ รับกลับบ้าน';
+} else if (draft.eatHere) {
+    pickUpType = 'ทานที่ร้าน';
+} else if (draft.takeAway) {
+    pickUpType = 'รับกลับบ้าน';
+}
+
+if(pickUpType) html += `<p>รูปแบบการรับ: ${pickUpType}</p>`;
+
+
+document.getElementById("summaryBox").innerHTML = html;
+
+// ----- ฟังก์ชันเลือกแบบติ๊ก -----
+function togglePay(type){
+  if(type === 'qr'){
+    document.getElementById('payCash').checked = false;
+  } else {
+    document.getElementById('payQR').checked = false;
+  }
+}
+
+// ----- ปุ่มยืนยันการชำระ -----
+function confirmPayment(){
+  const payQR = document.getElementById('payQR').checked;
+  const payCash = document.getElementById('payCash').checked;
+
+  if(!payQR && !payCash){
+    alert("กรุณาเลือกวิธีชำระเงิน");
+    return;
+  }
+
+  draft.payQR = payQR;
+  draft.payCash = payCash;
+  localStorage.setItem('orderDraft', JSON.stringify(draft));
+
+  if(payQR) location.href = "qrcode.html";
+  else location.href = "cash.html";
+}
+</script>
+
+</body>
+</html>

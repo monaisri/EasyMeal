@@ -1,0 +1,211 @@
+/* ฟอนต์ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Sarabun:wght@300;400;500;600&display=swap');
+
+:root{
+  --accent: #FFB84C; /* เปลี่ยนจาก #54c754 เป็นสีเหลืองทอง */ 
+  --bg: #ffffff;
+  /* ... (ส่วนอื่น ๆ) ... */
+}
+
+/* เบสิค */
+*{box-sizing:border-box}
+body{
+  /* **แก้ไข** ลบ margin ออกจาก body เพื่อให้ topbar ติดด้านบนสุด */
+  margin:0; 
+  font-family:'Inter','Sarabun',sans-serif;
+  color:#222;
+  -webkit-font-smoothing:antialiased;
+  
+  /* การตั้งค่ารูปพื้นหลังของ BODY (คุณต้องเปลี่ยน URL เอง) */
+  background-image: url('img/bg.jpg'); /* 🔴🔴🔴 URL รูปของคุณ 🔴🔴🔴 */
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed; 
+  background-color: var(--bg); 
+}
+
+/* **แก้ไข** กำหนด padding-top ให้ main เพื่อไม่ให้เนื้อหาถูก topbar บัง */
+main{
+  padding-top: 60px; /* เพิ่มระยะห่างด้านบน main เพื่อหลีกเลี่ยง topbar */
+}
+
+
+/* **แก้ไข** กำหนดพื้นหลังสีขาวทึบให้ container */
+.container{
+  max-width:1100px;
+  margin:0 auto; 
+  padding:20px 16px; /* ปรับ padding ให้สอดคล้อง */
+  background: #ffffff; 
+  border-radius: var(--radius);
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+  min-height: calc(100vh - 60px); 
+}
+
+/* **แก้ไข** กำหนดพื้นหลังสีขาวทึบให้ wide-container */
+.wide-container{
+  max-width:600px;
+  margin:0 auto;
+  padding:20px 16px; /* ปรับ padding ให้สอดคล้อง */
+  background: #ffffff; 
+  border-radius: var(--radius); 
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+  min-height: calc(100vh - 60px); 
+} 
+
+
+/* top bar */
+.topbar{
+  display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #f3f3f3;
+  /* กำหนด top:0 และ position: fixed เพื่อให้ติดด้านบนเสมอ */
+  position: fixed; 
+  color: #FFFFFF;
+  top: 0;
+  width: 100%; 
+  
+  /* สีพื้นหลังแถบด้านบน (คุณสามารถเปลี่ยนสีได้) */
+  background: #B33939; 
+  z-index:10;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+}
+
+/* ปรับสีข้อความใน topbar ให้เข้ากับพื้นหลังเข้ม */
+.topbar .brand, .topbar .user-label {
+    color: #ffffff; 
+}
+
+.brand{font-weight:600;} 
+.top-actions{display:flex;gap:10px;align-items:center}
+.user-label{} 
+
+/* buttons and inputs */
+.btn{border:0;padding:10px 14px;border-radius:10px;background:var(--accent);color:#222;font-weight:600;cursor:pointer}
+.btn.small{padding:6px 10px}
+.btn.ghost{background:transparent;border:1px solid #eee}
+input, textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #eee}
+
+/* shops grid */
+.shopGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:12px}
+.shopCard{background:var(--bg);border-radius:12px;padding:12px;box-shadow:0 6px 18px var(--card-shadow);cursor:pointer}
+.shopCard h3{margin:6px 0}
+.imgBox{height:120px;background:#f2f2f2;border-radius:10px;margin-bottom:10px}
+/* **แก้ไข:** เปลี่ยนสีตามคำขอเป็นสีเทาอ่อน */
+.imgBox.gray{background:#e6e6e6} 
+
+/* **[เพิ่ม]** CSS สำหรับส่วนโฆษณา/แบนเนอร์ */
+.adBanner {
+    margin: 30px 0;
+    height: 180px; 
+    overflow: hidden; 
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    position: relative;
+    background: #fff; 
+}
+.adSlides {
+    display: flex;
+    transition: transform 0.5s ease-in-out; 
+    height: 100%;
+}
+.adItem {
+    min-width: 100%; 
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 30px;
+    flex-shrink: 0;
+}
+.adItem img {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 20px;
+}
+.adItem h4 {
+    margin: 0 0 5px 0;
+    font-size: 1.5em;
+    color: #333;
+}
+.adItem p {
+    margin: 0;
+    color: var(--muted);
+}
+.adCallToAction {
+    background: var(--accent);
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 20px;
+    white-space: nowrap;
+}
+/* **[สิ้นสุดการเพิ่ม]** */
+
+
+/* layout menu + summary */
+.menuLayout{display:grid;grid-template-columns:1fr 360px;gap:18px;align-items:start}
+@media(max-width:940px){.menuLayout{grid-template-columns:1fr} .summaryColumn{order:2} .menuColumn{order:1}}
+
+.menuCard{background:var(--bg);border-radius:10px;padding:12px;margin-bottom:12px;box-shadow:0 6px 12px var(--card-shadow);display:flex;gap:12px;align-items:center}
+.menuCard .imgBox{width:96px;height:80px;flex-shrink:0;border-radius:8px}
+
+/* **แก้ไข:** จัดรูปแบบแถวจำนวน + พิเศษ + ปุ่มเพิ่ม ให้แสดงอยู่ข้างกัน */
+.qtyRow{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-top:6px;
+  flex-wrap:wrap; 
+}
+.qtyRow div{flex-shrink:0}
+
+/* summary */
+.summaryColumn{position:relative}
+.summaryCard{position:sticky;top:88px;background:var(--bg);padding:14px;border-radius:12px;box-shadow:0 8px 20px var(--card-shadow)}
+#orderSummary{max-height:300px;overflow:auto;margin-bottom:8px;line-height:1.6;padding:8px;background:#fafafa;border-radius:8px;border:1px solid #f3f3f3}
+.tick{display:flex;gap:8px;align-items:center}
+.tick input{width:18px;height:18px}
+.summaryFooter{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.totalLine{font-weight:600;font-size:18px}
+
+/* queue card */
+.queueCard{text-align:center;padding:20px;border-radius:12px;box-shadow:0 10px 30px var(--card-shadow)}
+#queueNumber{font-size:56px;margin:8px 0;color:var(--muted)}
+#queueStatus{font-size:16px;color:var(--muted)}
+
+/* utilities */
+.smallBtn{padding:6px 8px;border-radius:8px;border:1px solid #eee;background:#fff;cursor:pointer;font-weight:700}
+.hidden{display:none}
+
+.shopImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.menuImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* สำหรับหัวข้อ "ยืนยันการชำระ" และ "เลือกวิธีชำระเงิน" */
+h2 {
+    /* เพิ่มระยะห่างด้านล่างหัวข้อ */
+    margin-bottom: 1.0rem; 
+    /* **แก้ไข** เพิ่ม padding-top เพื่อให้หัวข้อเว้นระยะห่างจากขอบด้านบน */
+    padding-top: 20px;
+}
+
+/* สำหรับกล่องสรุปรายการสินค้า */
+#summaryBox {
+    /* เพิ่มขอบเขต/ระยะห่างภายในกล่อง */
+    padding: 5px 20px;
+    /* อาจจะเพิ่มเส้นขอบเพื่อให้ดูเป็นกล่องชัดเจนขึ้น */
+    border: 1px solid #ddd; 
+    border-radius: 6px;
+    /* เพิ่มระยะห่างด้านล่างกล่องสรุป */
+    margin-bottom: 1.5rem;
+}

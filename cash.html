@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cash Payment - FoodOrder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">FoodOrder</div>
+    <div class="top-actions">
+      <button class="btn small" onclick="location.href='payment.html'">ย้อนกลับ</button>
+      <button class="btn small" onclick="location.href='index.html'">หน้าหลัก</button>
+    </div>
+  </header>
+
+  <main class="wide-container" style="text-align:center"> <h2>ชำระเงินที่เคาน์เตอร์</h2>
+    <p>นำรหัส 4 หลักนี้ไปแจ้งที่เคาน์เตอร์เพื่อชำระ</p>
+
+    <div id="cashCodeBox" style="font-size:36px;font-weight:700;margin:18px 0;color:#333;padding:12px;border-radius:10px;border:1px solid #eee;display:inline-block;background:#fafafa"></div>
+
+    <div style="margin-top:12px">
+      <button class="btn" onclick="confirmCash()">ฉันชำระที่เคาน์เตอร์แล้ว</button>
+      <button class="btn ghost" onclick="location.href='payment.html'">ยกเลิก</button>
+    </div>
+  </main>
+
+<script>
+function gen4(){
+  return Math.floor(1000 + Math.random()*9000);
+}
+const code = gen4();
+document.getElementById('cashCodeBox').innerText = code;
+
+function confirmCash(){
+  // Clear order draft and redirect to waiting page
+  localStorage.removeItem('orderDraft');
+  localStorage.removeItem('cart');
+  location.href = 'waiting.html?q=' + code; // ส่งหมายเลขคิวจำลอง
+}
+</script>
+</body>
+</html>

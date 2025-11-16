@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>QR Payment - FoodOrder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">FoodOrder</div>
+    <div class="top-actions">
+      <button class="btn small" onclick="location.href='payment.html'">ย้อนกลับ</button>
+      <button class="btn small" onclick="location.href='index.html'">หน้าหลัก</button>
+    </div>
+  </header>
+
+  <main class="wide-container" style="text-align:center">
+    <h2>สแกน QR เพื่อชำระ</h2>
+    <p>สแกน QR นี้จากแอปธนาคาร</p>
+
+        <img src="img/QRcode.png" alt="QR Code Payment" style="width:300px; height:300px; border:1px solid #eee; background:#fff; object-fit: contain;">
+
+    <div style="margin-top:12px">
+      <button class="btn" onclick="confirmPaid()">ฉันชำระเรียบร้อย</button>
+      <button class="btn ghost" onclick="location.href='payment.html'">ยกเลิก</button>
+    </div>
+  </main>
+
+<script>
+function confirmPaid(){
+  // Clear order draft and redirect to waiting page
+  localStorage.removeItem('orderDraft');
+  localStorage.removeItem('cart');
+  location.href = 'waiting.html?q=1'; // ส่งหมายเลขคิวจำลอง
+}
+// 🌟 ส่วนที่เกี่ยวข้องกับการวาด QR Code จำลองถูกลบออกทั้งหมดแล้ว
+</script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>เลือกร้านอาหาร</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">FoodIndex</div>
+    <div class="top-actions">
+      <span id="userLabel" class="user-label hidden"></span>
+      <button id="loginBtn" class="btn small" onclick="location.href='login.html'">เข้าสู่ระบบ</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <h2>เลือกร้านอาหาร</h2>
+
+    <div class="shopGrid">
+
+      <div class="shopCard" onclick="openShop('somtum')">
+        <div class="imgBox">
+          <img src="img/หน้า Menu/ส้มตำ.webp" class="shopImg">
+        </div>
+        <h3>ร้านส้มตำ</h3>
+      </div>
+
+      <div class="shopCard" onclick="openShop('tamsang')">
+        <div class="imgBox">
+          <img src="img/หน้า Menu/ตามสั่ง.jpg" class="shopImg">
+        </div>
+        <h3>ร้านตามสั่ง</h3>
+      </div>
+
+      <div class="shopCard" onclick="openShop('noodle')">
+        <div class="imgBox">
+          <img src="img/หน้า Menu/ก๋วยเตี๊ยว.webp" class="shopImg">
+        </div>
+        <h3>ร้านก๋วยเตี๋ยว</h3>
+      </div>
+
+      <div class="shopCard" onclick="openShop('friedchicken')">
+        <div class="imgBox">
+          <img src="img/หน้า Menu/ไก่ทอด.jpg" class="shopImg">
+        </div>
+        <h3>ร้านไก่ทอด</h3>
+      </div>
+
+      <div class="shopCard" onclick="openShop('dessert')">
+        <div class="imgBox">
+          <img src="img/หน้า Menu/บิงซู.jpg" class="shopImg">
+        </div>
+        <h3>ร้านของหวาน</h3>
+      </div>
+    </div>
+
+    <div class="adBanner">
+        <div class="adSlides" id="adSlides">
+            </div>
+    </div>
+
+  </main>
+
+<script>
+function openShop(shop){
+  localStorage.removeItem('cart');
+  localStorage.setItem('currentShop', shop);
+  location.href = 'menu.html?shop=' + shop;
+}
+
+// **[เริ่ม]** โค้ดสำหรับส่วนโฆษณา/แบนเนอร์ และการแสดงผลผู้ใช้
+
+// ข้อมูลเมนูโฆษณา (อ้างอิงจาก Path รูปภาพที่มีอยู่)
+const adData = [
+    { title: 'ตำปูปลาร้าแซ่บ', description: 'ร้านส้มตำ', img: 'somtum/ตำปูปลาร้า.webp', shop: 'somtum' },
+    { title: 'ข้าวผัดกะเพราหมูกรอบ', description: 'ร้านตามสั่ง', img: 'ตามสั่ง/กะเพราหมูกรอบ.jpg', shop: 'tamsang' },
+    { title: 'เย็นตาโฟเข้มข้น', description: 'ร้านก๋วยเตี๋ยว', img: 'noodle/เย็นตาโฟ.jpg', shop: 'noodle' },
+    { title: 'น่องไก่ทอดกรอบ', description: 'ร้านไก่ทอด', img: 'friedchicken/น่องไก่.webp', shop: 'friedchicken' },
+    { title: 'บิงซู มัจฉะเย็นชื่นใจ', description: 'ร้านของหวาน', img: 'dessert/มัจฉะ.jpg', shop: 'dessert' },
+];
+
+const slidesContainer = document.getElementById('adSlides');
+adData.forEach(data => {
+    const item = document.createElement('div');
+    item.className = 'adItem';
+    // คลิกที่โฆษณาแล้วไปยังหน้าร้านนั้น
+    item.onclick = () => openShop(data.shop);
+    item.innerHTML = `
+        <img src="img/${data.img}" alt="${data.title}">
+        <div style="flex-grow:1">
+            <h4>${data.title}</h4>
+            <p>${data.description}</p>
+        </div>
+        <div class="adCallToAction">สั่งเลย!</div>
+    `;
+    slidesContainer.appendChild(item);
+});
+
+let currentSlide = 0;
+const totalSlides = adData.length;
+
+function nextSlide() {
+    currentSlide++;
+    if (currentSlide >= totalSlides) {
+        currentSlide = 0;
+    }
+    const offset = -currentSlide * 100;
+    slidesContainer.style.transform = `translateX(${offset}%)`;
+}
+
+// ตั้งเวลาให้เปลี่ยนสไลด์ทุก 4000 มิลลิวินาที (4 วินาที)
+setInterval(nextSlide, 6000);
+
+// โค้ดสำหรับแสดง User Label ใน Topbar
+let user = localStorage.getItem('user');
+document.getElementById('userLabel').innerText = user || 'Guest';
+if(user) document.getElementById('userLabel').classList.remove('hidden');
+// **[สิ้นสุด]** โค้ดสำหรับส่วนโฆษณา/แบนเนอร์ และการแสดงผลผู้ใช้
+</script>
+
+</body>
+</html>

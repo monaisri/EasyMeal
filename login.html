@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>เข้าสู่ระบบ - FoodOrder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">FoodOrder</div>
+    <div class="top-actions">
+      <button class="btn small" onclick="location.href='index.html'">กลับหน้าหลัก</button>
+    </div>
+  </header>
+
+  <main class="wide-container"> <h2>เข้าสู่ระบบด้วยเบอร์โทร</h2>
+    <p>กรอกเบอร์โทรเพื่อจำผู้ใช้ไว้บนเครื่อง (local)</p>
+    <input id="phoneInput" placeholder="กรอกเบอร์โทร (ตัวเลขเท่านั้น)" />
+    <div style="margin-top:8px">
+      <button class="btn" onclick="doLogin()">ยืนยัน</button>
+      <button class="btn ghost" onclick="location.href='index.html'">ยกเลิก</button>
+    </div>
+  </main>
+
+<script>
+function doLogin(){
+  const phone = document.getElementById('phoneInput').value.trim();
+  if(!/^\d{8,15}$/.test(phone)){
+    alert('กรุณากรอกเบอร์โทรให้ถูกต้อง (8-15 ตัวเลข)');
+    return;
+  }
+  localStorage.setItem('user', phone);
+  alert('เข้าสู่ระบบสำเร็จ');
+  location.href = 'index.html';
+}
+</script>
+</body>
+</html>
