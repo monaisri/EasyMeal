@@ -136,7 +136,7 @@ input, textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #eee}
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    margin-left: 20px;
+    margin-right: 30px;
     white-space: nowrap;
 }
 /* **[สิ้นสุดการเพิ่ม]** */
@@ -209,3 +209,67 @@ h2 {
     /* เพิ่มระยะห่างด้านล่างกล่องสรุป */
     margin-bottom: 1.5rem;
 }
+
+/* ปุ่มแบนเนอร์แบบพรีเมียม */
+.adBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.6);
+
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  cursor: pointer;
+
+  transition: all 0.18s ease-out;
+  z-index: 10;
+}
+
+.adBtn:hover {
+  background: rgba(255,255,255,0.9);
+  transform: translateY(-50%) scale(1.12);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.16);
+}
+
+.adPrev {
+  left: 10px;
+}
+
+.adNext {
+  right: 10px;
+}
+
+/* ทำให้ปุ่ม “เพิ่ม” อยู่ตำแหน่งเดียวกันทุกการ์ด */
+.qtyRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.menuInfo {
+  width: 100%;
+}
+
+.menuInfo > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.qtyRow .btn.small {
+  margin-left: auto;  /* บังคับให้ปุ่มไปสุดด้านขวา */
+}
+

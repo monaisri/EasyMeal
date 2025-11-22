@@ -8,15 +8,16 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">FoodIndex</div>
+    <div class="brand">EasyMeal</div>
     <div class="top-actions">
       <span id="userLabel" class="user-label hidden"></span>
       <button id="loginBtn" class="btn small" onclick="location.href='login.html'">เข้าสู่ระบบ</button>
+      <button id="logoutBtn" class="btn small hidden" onclick="doLogout()">ออกจากระบบ</button>
     </div>
   </header>
 
   <main class="container">
-    <h2>เลือกร้านอาหาร</h2>
+    <h2>วันนี้คุณอยากทานอะไร?</h2>
 
     <div class="shopGrid">
 
@@ -52,14 +53,19 @@
         <div class="imgBox">
           <img src="img/หน้า Menu/บิงซู.jpg" class="shopImg">
         </div>
-        <h3>ร้านของหวาน</h3>
+        <h3>ร้านบิงซู</h3>
       </div>
     </div>
 
     <div class="adBanner">
-        <div class="adSlides" id="adSlides">
-            </div>
-    </div>
+    <button class="adBtn adPrev" onclick="prevSlide()">❮</button>
+
+    <div class="adSlides" id="adSlides"></div>
+
+    <button class="adBtn adNext" onclick="nextSlide()">❯</button>
+</div>
+
+
 
   </main>
 
@@ -74,11 +80,11 @@ function openShop(shop){
 
 // ข้อมูลเมนูโฆษณา (อ้างอิงจาก Path รูปภาพที่มีอยู่)
 const adData = [
-    { title: 'ตำปูปลาร้าแซ่บ', description: 'ร้านส้มตำ', img: 'somtum/ตำปูปลาร้า.webp', shop: 'somtum' },
+    { title: 'ตำปูปลาร้าสุดแซ่บ', description: 'ร้านส้มตำ', img: 'somtum/ตำปูปลาร้า.webp', shop: 'somtum' },
     { title: 'ข้าวผัดกะเพราหมูกรอบ', description: 'ร้านตามสั่ง', img: 'ตามสั่ง/กะเพราหมูกรอบ.jpg', shop: 'tamsang' },
-    { title: 'เย็นตาโฟเข้มข้น', description: 'ร้านก๋วยเตี๋ยว', img: 'noodle/เย็นตาโฟ.jpg', shop: 'noodle' },
+    { title: 'เย็นตาโฟอร่อยถึงใจ', description: 'ร้านก๋วยเตี๋ยว', img: 'noodle/เย็นตาโฟ.jpg', shop: 'noodle' },
     { title: 'น่องไก่ทอดกรอบ', description: 'ร้านไก่ทอด', img: 'friedchicken/น่องไก่.webp', shop: 'friedchicken' },
-    { title: 'บิงซู มัจฉะเย็นชื่นใจ', description: 'ร้านของหวาน', img: 'dessert/มัจฉะ.jpg', shop: 'dessert' },
+    { title: 'บิงซู มัจฉะ', description: 'ร้านบิงซู', img: 'dessert/มัจฉะ.jpg', shop: 'dessert' },
 ];
 
 const slidesContainer = document.getElementById('adSlides');
@@ -93,7 +99,7 @@ adData.forEach(data => {
             <h4>${data.title}</h4>
             <p>${data.description}</p>
         </div>
-        <div class="adCallToAction">สั่งเลย!</div>
+        <div class="adCallToAction">สั่งเลย</div>
     `;
     slidesContainer.appendChild(item);
 });
@@ -113,11 +119,50 @@ function nextSlide() {
 // ตั้งเวลาให้เปลี่ยนสไลด์ทุก 4000 มิลลิวินาที (4 วินาที)
 setInterval(nextSlide, 6000);
 
-// โค้ดสำหรับแสดง User Label ใน Topbar
+// 🟢 โค้ดสำหรับแสดง User Label และจัดการปุ่ม Login/Logout
 let user = localStorage.getItem('user');
-document.getElementById('userLabel').innerText = user || 'Guest';
-if(user) document.getElementById('userLabel').classList.remove('hidden');
+const userLabel = document.getElementById('userLabel');
+const loginBtn = document.getElementById('loginBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+
+userLabel.innerText = user || 'Guest';
+
+if(user) {
+  userLabel.classList.remove('hidden');
+  loginBtn.classList.add('hidden');       // 🔴 ซ่อนปุ่ม 'เข้าสู่ระบบ'
+  logoutBtn.classList.remove('hidden');   // 🟢 แสดงปุ่ม 'ออกจากระบบ'
+} else {
+  loginBtn.classList.remove('hidden'); 
+  logoutBtn.classList.add('hidden'); 
+}
+
+// 🟢 ฟังก์ชันใหม่: ออกจากระบบ
+function doLogout(){
+  localStorage.removeItem('user');
+  alert('ออกจากระบบสำเร็จ');
+  location.href = 'index.html';
+}
+
 // **[สิ้นสุด]** โค้ดสำหรับส่วนโฆษณา/แบนเนอร์ และการแสดงผลผู้ใช้
+
+function nextSlide() {
+    currentSlide++;
+    if (currentSlide >= totalSlides) {
+        currentSlide = 0;
+    }
+    const offset = -currentSlide * 100;
+    slidesContainer.style.transform = `translateX(${offset}%)`;
+}
+
+function prevSlide() {
+    currentSlide--;
+    if (currentSlide < 0) {
+        currentSlide = totalSlides - 1;
+    }
+    const offset = -currentSlide * 100;
+    slidesContainer.style.transform = `translateX(${offset}%)`;
+}
+
 </script>
 
 </body>

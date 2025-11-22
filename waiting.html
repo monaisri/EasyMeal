@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>รออาหาร - FoodOrder</title>
+  <title>รออาหาร - EasyMeal</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">FoodOrder</div>
+    <div class="brand">EasyMeal</div>
     <div class="top-actions">
       <button class="btn small" onclick="location.href='index.html'">หน้าหลัก</button>
     </div>
@@ -19,7 +19,7 @@
     <div class="queueCard">
       <p>หมายเลขคิวของคุณคือ</p>
       <h1 id="queueNumber">1</h1>
-      <p id="queueStatus">กำลังเตรียมอาหาร... กรุณารอสักครู่ (ประมาณ 15 วินาที)</p>
+      <p id="queueStatus">กำลังเตรียมอาหาร... กรุณารอสักครู่ (ประมาณ 10 วินาที)</p>
     </div>
 
     <div style="margin-top:14px">
@@ -30,11 +30,11 @@
 <script>
 // รอ 15 วินาที จากนั้นเปลี่ยนสถานะเป็นเสร็จ
 setTimeout(() => {
-  document.getElementById('queueStatus').innerText = 'อาหารของคุณเสร็จแล้ว สามารถมารับได้เลย';
+  document.getElementById('queueStatus').innerText = 'อาหารของคุณเสร็จแล้ว สามารถมารับได้เลย \n ทานให้อร่อยนะครับ/ค่ะ';
   // ถ้าต้องการเล่นเสียง ให้ผู้ใช้ใส่ <audio> และเรียก play()
     var audio = new Audio('sound.mp3');
     audio.play();
-}, 15000);
+}, 10000);
 </script>
 </body>
 </html>

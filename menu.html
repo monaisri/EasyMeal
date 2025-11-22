@@ -3,14 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>เมนู - FoodOrder</title>
+  <title>เมนู - EasyMeal</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
   <header class="topbar">
-    <div class="brand">FoodOrder</div>
+    <div class="brand">EasyMeal</div>
     <div class="top-actions">
       <span id="userLabel" class="user-label hidden"></span>
+      <button id="loginBtn" class="btn small hidden" onclick="location.href='login.html'">เข้าสู่ระบบ</button>
+      <button id="logoutBtn" class="btn small hidden" onclick="doLogout()">ออกจากระบบ</button>
       <button class="btn small" onclick="location.href='index.html'">กลับหน้าหลัก</button>
     </div>
   </header>
@@ -47,11 +50,36 @@
     </div>
   </main>
 
-<script>
-let user = localStorage.getItem('user');
-document.getElementById('userLabel').innerText = user || 'Guest';
-if(user) document.getElementById('userLabel').classList.remove('hidden');
 
+
+<script>
+/* -------------------------------
+      ระบบ Login / Logout
+--------------------------------*/
+let user = localStorage.getItem('user');
+const userLabel = document.getElementById('userLabel');
+const logoutBtn = document.getElementById('logoutBtn');
+const loginBtn = document.getElementById('loginBtn'); 
+
+userLabel.innerText = user || 'Guest';
+
+if(user){
+    userLabel.classList.remove('hidden');
+    logoutBtn.classList.remove('hidden');
+} 
+else {
+    loginBtn.classList.remove('hidden');
+}
+
+function doLogout(){
+  localStorage.removeItem('user');
+  alert('ออกจากระบบสำเร็จ');
+  location.href = 'index.html';
+}
+
+/* -------------------------------
+      ตั้งค่าร้านอาหาร
+--------------------------------*/
 const urlParams = new URLSearchParams(window.location.search);
 let shop = urlParams.get('shop') || 'somtum';
 
@@ -60,43 +88,53 @@ const shopNamesTH = {
   tamsang: "ร้านตามสั่ง",
   noodle: "ร้านก๋วยเตี๋ยว",
   friedchicken: "ร้านไก่ทอด",
-  dessert: "ร้านของหวาน",
+  dessert: "ร้านบิงซู",
 };
 
-// 🌟 ปรับโครงสร้างเมนูให้ใช้ชื่อเมนูเป็น Key และเพิ่ม img สำหรับควบคุมรูปภาพ
+/* -------------------------------
+      เมนูแบบกำหนดเอง (ทีละรายการ)
+--------------------------------*/
 const menus = {
   somtum: {
-    'ตำไทย': { price: 50, img: 'somtum/ตำไทย.jpg' }, 
-    'ตำปูปลาร้า': { price: 60, img: 'somtum/ตำปูปลาร้า.webp' }, 
-    'คอหมูย่าง': { price: 70, img: 'somtum/คอหมูย่าง.jpg' }, 
-    'ข้าวเหนียว': { price: 10, img: 'somtum/ข้าวเหนียว.jpg' }
+    'ตำไทย': { price: 50, img: 'somtum/ตำไทย.jpg', canSpecial: true },
+    'ตำปูปลาร้า': { price: 60, img: 'somtum/ตำปูปลาร้า.webp', canSpecial: true },
+    'คอหมูย่าง': { price: 70, img: 'somtum/คอหมูย่าง.jpg', canSpecial: true },
+    'ข้าวเหนียว': { price: 10, img: 'somtum/ข้าวเหนียว.jpg', canSpecial: false }
   },
+
   tamsang: {
-    'ข้าวผัดกะเพราหมูกรอบ': { price: 55, img: 'ตามสั่ง/กะเพราหมูกรอบ.jpg' }, 
-    'ข้าวผัดหมูสับ': { price: 50, img: 'ตามสั่ง/ข้าวผัดหมูสับ.webp' }, 
-    'ผัดซีอิ๊วหมู': { price: 55, img: 'ตามสั่ง/ผัดซีอิ๊ว.jpg' }, 
-    'ผัดมาม่า': { price: 50, img: 'ตามสั่ง/ผัดมาม่า.jpg' }, 
-    'ไข่ดาว': { price: 10, img: 'ตามสั่ง/ไข่ดาว.webp' }
+    'ข้าวผัดกะเพราหมูกรอบ': { price: 55, img: 'ตามสั่ง/กะเพราหมูกรอบ.jpg', canSpecial: true },
+    'ข้าวผัดหมูสับ': { price: 50, img: 'ตามสั่ง/ข้าวผัดหมูสับ.webp', canSpecial: true },
+    'ผัดซีอิ๊วหมู': { price: 55, img: 'ตามสั่ง/ผัดซีอิ๊ว.jpg', canSpecial: true },
+    'ผัดมาม่า': { price: 50, img: 'ตามสั่ง/ผัดมาม่า.jpg', canSpecial: true },
+    'ไข่ดาว': { price: 10, img: 'ตามสั่ง/ไข่ดาว.webp', canSpecial: false }
   },
+
   noodle: {
-    'บะหมี่น้ำหมูแดง': { price: 50, img: 'noodle/น้ำหมูแดง.jpg' }, 
-    'เย็นตาโฟ': { price: 60, img: 'noodle/เย็นตาโฟ.jpg' }, 
-    'ก๋วยเตี๋ยวเรือ': { price: 55, img: 'noodle/เต๋วเรือ.jpg' }, 
-    'เกาเหลา': { price: 60, img: 'noodle/เกาเหลา.jpg' }
+    'บะหมี่น้ำหมูแดง': { price: 50, img: 'noodle/น้ำหมูแดง.jpg', canSpecial: true },
+    'เย็นตาโฟ': { price: 60, img: 'noodle/เย็นตาโฟ.jpg', canSpecial: true },
+    'ก๋วยเตี๋ยวเรือ': { price: 55, img: 'noodle/เต๋วเรือ.jpg', canSpecial: true },
+    'เกาเหลา': { price: 60, img: 'noodle/เกาเหลา.jpg', canSpecial: true }
   },
+
   friedchicken: {
-    'น่องไก่ทอด 2 ชิ้น': { price: 40, img: 'friedchicken/น่องไก่.webp' }, 
-    'นักเก็ตไก่': { price: 55, img: 'friedchicken/นักเก็ต.jpg' }, 
-    'ปีกไก่ทอด': { price: 25, img: 'friedchicken/ปีกไก่.webp' },
-    'ข้าวเหนียว': { price: 10, img: 'friedchicken/ข้าวเหนียว.jpg' }
+    'น่องไก่ทอด 2 ชิ้น': { price: 40, img: 'friedchicken/น่องไก่.webp', canSpecial: false },
+    'นักเก็ตไก่': { price: 55, img: 'friedchicken/นักเก็ต.jpg', canSpecial: false },
+    'ปีกไก่ทอด': { price: 25, img: 'friedchicken/ปีกไก่.webp', canSpecial: false },
+    'ข้าวเหนียว': { price: 10, img: 'friedchicken/ข้าวเหนียว.jpg', canSpecial: false }
   },
+
   dessert: {
-    'บิงซู นมสด': { price: 70, img: 'dessert/นมสด.jpg' }, 
-    'บิงซู โอวัลติน': { price: 70, img: 'dessert/โอวัลติน.jpg' }, 
-    'บิงซู มัจฉะ': { price: 70, img: 'dessert/มัจฉะ.jpg' },
+    'บิงซู นมสด': { price: 70, img: 'dessert/นมสด.jpg', canSpecial: false },
+    'บิงซู โอวัลติน': { price: 70, img: 'dessert/โอวัลติน.jpg', canSpecial: false },
+    'บิงซู มัจฉะ': { price: 70, img: 'dessert/มัจฉะ.jpg', canSpecial: false } ,
+    'บิงซู สตรอเบอร์รี่': { price: 70, img: 'dessert/สตรอเบอร์รี่.jpg', canSpecial: false }
   }
 };
 
+/* -------------------------------
+      Rendering เมนู
+--------------------------------*/
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 renderMenu();
 renderSummary();
@@ -106,11 +144,10 @@ function renderMenu(){
   document.getElementById('shopTitle').innerText = shopNamesTH[shop];
   list.innerHTML = '';
 
-  // ใช้ Object.entries เพื่อวนลูปเอาทั้งชื่อเมนู (menuName) และรายละเอียด (item)
-  // idx (index ชั่วคราว) ใช้สำหรับอ้างอิง id ของปุ่มเพิ่ม/ลดจำนวน
   Object.entries(menus[shop]).forEach(([menuName, item], idx) => {
     const div = document.createElement('div');
     div.className = 'menuCard';
+
     div.innerHTML = `
       <div class="imgBox">
         <img src="img/${item.img}" class="menuImg">
@@ -127,19 +164,22 @@ function renderMenu(){
           <div>จำนวน: <span id="qty-${idx}">0</span></div>
           <button class="smallBtn" onclick="incQty(${idx})">+</button>
 
-          <label class="tick">
-            <input type="checkbox" id="special-${idx}"> พิเศษ (+10 ฿)
-          </label>
+          <!-- แสดงพิเศษเฉพาะรายการที่ canSpecial -->
+          ${item.canSpecial ? `
+            <label class="tick">
+              <input type="checkbox" id="special-${idx}"> พิเศษ (+10 ฿)
+            </label>
+          ` : ``}
 
           <button class="btn small" onclick="addToCart('${menuName}')">เพิ่ม</button>
         </div>
       </div>
     `;
+
     list.appendChild(div);
   });
 }
 
-// ใช้งานได้เหมือนเดิม เพราะใช้ idx ที่สร้างขึ้นชั่วคราวในการอ้างอิง
 function incQty(idx){
   const qtyEl = document.getElementById(`qty-${idx}`);
   qtyEl.innerText = parseInt(qtyEl.innerText) + 1;
@@ -151,32 +191,31 @@ function decQty(idx){
   if(q > 0) qtyEl.innerText = q - 1;
 }
 
-// 🌟 ปรับให้รับชื่อเมนู (menuName) และใช้เป็น Key หลักในตะกร้า
 function addToCart(menuName){
-  // ต้องหา index ชั่วคราวกลับมาเพื่ออ้างอิง id ของ qty และ special
   let tempIndex = Object.keys(menus[shop]).indexOf(menuName); 
 
   const qty = parseInt(document.getElementById(`qty-${tempIndex}`).innerText);
-  const specialChecked = document.getElementById(`special-${tempIndex}`).checked;
+  const item = menus[shop][menuName];
+
+  const specialChecked = item.canSpecial
+    ? document.getElementById(`special-${tempIndex}`).checked
+    : false;
 
   if(qty <= 0){
     alert("กรุณาเลือกจำนวนก่อน");
     return;
   }
 
-  // ค้นหาในตะกร้าด้วย menuName แทน index
-  const itemIndex = cart.findIndex(it => it.menuName === menuName && it.shop === shop); 
+  const itemIndex = cart.findIndex(it => it.menuName === menuName && it.shop === shop);
 
   if(itemIndex > -1){
     cart[itemIndex].qty += qty;
     cart[itemIndex].special = specialChecked;
   } else {
-    // เก็บ menuName ไว้ในตะกร้า
-    cart.push({menuName: menuName, shop: shop, qty: qty, special: specialChecked}); 
+    cart.push({menuName: menuName, shop: shop, qty: qty, special: specialChecked});
   }
 
-  // เคลียร์จำนวนที่เลือก
-  document.getElementById(`qty-${tempIndex}`).innerText = 0; 
+  document.getElementById(`qty-${tempIndex}`).innerText = 0;
 
   saveAndRender();
 }
@@ -186,7 +225,6 @@ function saveAndRender(){
   renderSummary();
 }
 
-// 🌟 ปรับให้ดึงข้อมูลเมนูจากชื่อเมนู (menuName)
 function renderSummary(){
   const summary = document.getElementById('orderSummary');
   const totalDisplay = document.getElementById('totalPrice');
@@ -201,12 +239,9 @@ function renderSummary(){
   let html = '';
 
   cart.forEach(it => {
-    // ดึงรายละเอียดเมนูด้วยชื่อเมนู (it.menuName)
     const item = menus[shop][it.menuName];
-    
-    // หากเมนูถูกลบไปแล้ว ให้ข้ามรายการนี้
-    if (!item) return; 
-    
+    if(!item) return;
+
     const special = it.special ? 10 : 0;
     const sum = (item.price + special) * it.qty;
     total += sum;
@@ -244,7 +279,7 @@ function goToPayment(){
 
   const data = {
     shop,
-    cart, // cart ที่มี menuName แทน index
+    cart,
     note,
     eatHere: document.getElementById('eatHere').checked,
     takeAway: document.getElementById('takeAway').checked
@@ -253,6 +288,7 @@ function goToPayment(){
   localStorage.setItem('orderDraft', JSON.stringify(data));
   location.href = 'payment.html';
 }
+
 </script>
 </body>
 </html>
