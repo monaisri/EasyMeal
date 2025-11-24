@@ -34,7 +34,29 @@ function confirmPaid(){
   localStorage.removeItem('cart');
   location.href = 'waiting.html?q=1'; // ส่งหมายเลขคิวจำลอง
 }
-// 🌟 ส่วนที่เกี่ยวข้องกับการวาด QR Code จำลองถูกลบออกทั้งหมดแล้ว
+const user = localStorage.getItem('user');
+const userLabel = document.getElementById('userLabel'); // อย่าลืมใส่ id="userLabel" ใน HTML ด้วย
+if(user && userLabel){
+    userLabel.innerText = "User: " + user;
+    userLabel.classList.remove('hidden');
+}
+
+function confirmPaid(){
+  // 1. ดึงข้อมูล Order Draft มาก่อน
+  const draft = localStorage.getItem('orderDraft');
+  
+  // 2. ย้ายไปเก็บใน 'finishedOrder' เพื่อให้ waiting.html ดึงไปใช้แสดงผล
+  if(draft) {
+    localStorage.setItem('finishedOrder', draft);
+  }
+
+  // 3. ลบของเก่าตามปกติ
+  localStorage.removeItem('orderDraft');
+  localStorage.removeItem('cart');
+
+  // 4. ไปหน้า Waiting
+  location.href = 'waiting.html?q=1'; 
+}
 </script>
 </body>
 </html>

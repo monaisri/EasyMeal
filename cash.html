@@ -30,15 +30,35 @@
 function gen4(){
   return Math.floor(1000 + Math.random()*9000);
 }
+
+
 const code = gen4();
 document.getElementById('cashCodeBox').innerText = code;
 
+const user = localStorage.getItem('user');
+const userLabel = document.getElementById('userLabel'); // อย่าลืมใส่ id="userLabel" ใน HTML ด้วย
+if(user && userLabel){
+    userLabel.innerText = "User: " + user;
+    userLabel.classList.remove('hidden');
+}
+
 function confirmCash(){
-  // Clear order draft and redirect to waiting page
+  // 1. ดึงข้อมูล Order Draft มาก่อน
+  const draft = localStorage.getItem('orderDraft');
+  
+  // 2. ย้ายไปเก็บใน 'finishedOrder' เพื่อให้ waiting.html ดึงไปใช้แสดงผล
+  if(draft) {
+    localStorage.setItem('finishedOrder', draft);
+  }
+
+  // 3. ลบของเก่าตามปกติ
   localStorage.removeItem('orderDraft');
   localStorage.removeItem('cart');
-  location.href = 'waiting.html?q=' + code; // ส่งหมายเลขคิวจำลอง
+
+  // 4. ไปหน้า Waiting
+  location.href = 'waiting.html?q=1'; 
 }
+
 </script>
 </body>
 </html>

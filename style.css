@@ -1,275 +1,369 @@
-/* ฟอนต์ */
+/* =========================================
+   1. IMPORT FONTS & VARIABLES
+   ========================================= */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Sarabun:wght@300;400;500;600&display=swap');
 
-:root{
-  --accent: #FFB84C; /* เปลี่ยนจาก #54c754 เป็นสีเหลืองทอง */ 
+:root {
+  --accent: #FFB84C; /* สีเหลืองทอง */
   --bg: #ffffff;
-  /* ... (ส่วนอื่น ๆ) ... */
+  --muted: #666;
+  --card-shadow: rgba(0,0,0,0.06);
+  --radius: 12px;
 }
 
-/* เบสิค */
-*{box-sizing:border-box}
-body{
-  /* **แก้ไข** ลบ margin ออกจาก body เพื่อให้ topbar ติดด้านบนสุด */
-  margin:0; 
-  font-family:'Inter','Sarabun',sans-serif;
-  color:#222;
-  -webkit-font-smoothing:antialiased;
+/* =========================================
+   2. BASIC RESET & BODY
+   ========================================= */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Inter', 'Sarabun', sans-serif;
+  color: #222;
+  -webkit-font-smoothing: antialiased;
   
-  /* การตั้งค่ารูปพื้นหลังของ BODY (คุณต้องเปลี่ยน URL เอง) */
-  background-image: url('img/bg.jpg'); /* 🔴🔴🔴 URL รูปของคุณ 🔴🔴🔴 */
+  /* Background Image */
+  background-image: url('img/bg.jpg'); /* เปลี่ยน URL ตามรูปจริง */
   background-size: cover;
   background-position: center;
-  background-attachment: fixed; 
-  background-color: var(--bg); 
+  background-attachment: fixed;
+  background-color: var(--bg);
 }
 
-/* **แก้ไข** กำหนด padding-top ให้ main เพื่อไม่ให้เนื้อหาถูก topbar บัง */
-main{
-  padding-top: 60px; /* เพิ่มระยะห่างด้านบน main เพื่อหลีกเลี่ยง topbar */
+main {
+  padding-top: 80px; /* เว้นระยะเผื่อ Topbar */
 }
 
-
-/* **แก้ไข** กำหนดพื้นหลังสีขาวทึบให้ container */
-.container{
-  max-width:1100px;
-  margin:0 auto; 
-  padding:20px 16px; /* ปรับ padding ให้สอดคล้อง */
-  background: #ffffff; 
+/* =========================================
+   3. LAYOUT CONTAINERS
+   ========================================= */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 16px;
+  background: #ffffff;
   border-radius: var(--radius);
   box-shadow: 0 0 20px rgba(0,0,0,0.1);
-  min-height: calc(100vh - 60px); 
+  min-height: calc(100vh - 80px);
 }
 
-/* **แก้ไข** กำหนดพื้นหลังสีขาวทึบให้ wide-container */
-.wide-container{
-  max-width:600px;
-  margin:0 auto;
-  padding:20px 16px; /* ปรับ padding ให้สอดคล้อง */
-  background: #ffffff; 
-  border-radius: var(--radius); 
+.wide-container {
+  max-width: 600px;
+  margin: 0 auto;
+  margin-top: 4.3%;
+  padding: 20px 16px;
+  background: #ffffff;
+  border-radius: var(--radius);
   box-shadow: 0 0 20px rgba(0,0,0,0.1);
-  min-height: calc(100vh - 60px); 
-} 
+  min-height: calc(100vh - 80px);
+  text-align: center; /* ส่วนใหญ่หน้า wide ใช้ center */
+}
 
-
-/* top bar */
-.topbar{
-  display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #f3f3f3;
-  /* กำหนด top:0 และ position: fixed เพื่อให้ติดด้านบนเสมอ */
-  position: fixed; 
-  color: #FFFFFF;
+/* =========================================
+   4. TOPBAR & NAVIGATION
+   ========================================= */
+.topbar {
+  display: flex;
+  align-items: center;
+  /* justify-content: space-between; <-- ลบออกเพราะเราใช้ margin-auto ดัน search */
+  padding: 12px 50px;
+  border-bottom: 1px solid #f3f3f3;
+  position: fixed;
   top: 0;
-  width: 100%; 
-  
-  /* สีพื้นหลังแถบด้านบน (คุณสามารถเปลี่ยนสีได้) */
-  background: #B33939; 
-  z-index:10;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-}
-
-/* ปรับสีข้อความใน topbar ให้เข้ากับพื้นหลังเข้ม */
-.topbar .brand, .topbar .user-label {
-    color: #ffffff; 
-}
-
-.brand{font-weight:600;} 
-.top-actions{display:flex;gap:10px;align-items:center}
-.user-label{} 
-
-/* buttons and inputs */
-.btn{border:0;padding:10px 14px;border-radius:10px;background:var(--accent);color:#222;font-weight:600;cursor:pointer}
-.btn.small{padding:6px 10px}
-.btn.ghost{background:transparent;border:1px solid #eee}
-input, textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #eee}
-
-/* shops grid */
-.shopGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:12px}
-.shopCard{background:var(--bg);border-radius:12px;padding:12px;box-shadow:0 6px 18px var(--card-shadow);cursor:pointer}
-.shopCard h3{margin:6px 0}
-.imgBox{height:120px;background:#f2f2f2;border-radius:10px;margin-bottom:10px}
-/* **แก้ไข:** เปลี่ยนสีตามคำขอเป็นสีเทาอ่อน */
-.imgBox.gray{background:#e6e6e6} 
-
-/* **[เพิ่ม]** CSS สำหรับส่วนโฆษณา/แบนเนอร์ */
-.adBanner {
-    margin: 30px 0;
-    height: 180px; 
-    overflow: hidden; 
-    border-radius: var(--radius);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    position: relative;
-    background: #fff; 
-}
-.adSlides {
-    display: flex;
-    transition: transform 0.5s ease-in-out; 
-    height: 100%;
-}
-.adItem {
-    min-width: 100%; 
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 15px 30px;
-    flex-shrink: 0;
-}
-.adItem img {
-    width: 140px;
-    height: 140px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-right: 20px;
-}
-.adItem h4 {
-    margin: 0 0 5px 0;
-    font-size: 1.5em;
-    color: #333;
-}
-.adItem p {
-    margin: 0;
-    color: var(--muted);
-}
-.adCallToAction {
-    background: var(--accent);
-    padding: 8px 15px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-right: 30px;
-    white-space: nowrap;
-}
-/* **[สิ้นสุดการเพิ่ม]** */
-
-
-/* layout menu + summary */
-.menuLayout{display:grid;grid-template-columns:1fr 360px;gap:18px;align-items:start}
-@media(max-width:940px){.menuLayout{grid-template-columns:1fr} .summaryColumn{order:2} .menuColumn{order:1}}
-
-.menuCard{background:var(--bg);border-radius:10px;padding:12px;margin-bottom:12px;box-shadow:0 6px 12px var(--card-shadow);display:flex;gap:12px;align-items:center}
-.menuCard .imgBox{width:96px;height:80px;flex-shrink:0;border-radius:8px}
-
-/* **แก้ไข:** จัดรูปแบบแถวจำนวน + พิเศษ + ปุ่มเพิ่ม ให้แสดงอยู่ข้างกัน */
-.qtyRow{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  margin-top:6px;
-  flex-wrap:wrap; 
-}
-.qtyRow div{flex-shrink:0}
-
-/* summary */
-.summaryColumn{position:relative}
-.summaryCard{position:sticky;top:88px;background:var(--bg);padding:14px;border-radius:12px;box-shadow:0 8px 20px var(--card-shadow)}
-#orderSummary{max-height:300px;overflow:auto;margin-bottom:8px;line-height:1.6;padding:8px;background:#fafafa;border-radius:8px;border:1px solid #f3f3f3}
-.tick{display:flex;gap:8px;align-items:center}
-.tick input{width:18px;height:18px}
-.summaryFooter{display:flex;flex-direction:column;gap:8px;margin-top:8px}
-.totalLine{font-weight:600;font-size:18px}
-
-/* queue card */
-.queueCard{text-align:center;padding:20px;border-radius:12px;box-shadow:0 10px 30px var(--card-shadow)}
-#queueNumber{font-size:56px;margin:8px 0;color:var(--muted)}
-#queueStatus{font-size:16px;color:var(--muted)}
-
-/* utilities */
-.smallBtn{padding:6px 8px;border-radius:8px;border:1px solid #eee;background:#fff;cursor:pointer;font-weight:700}
-.hidden{display:none}
-
-.shopImg {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  background: #B33939; /* สีแดงเข้ม */
+  color: #FFFFFF;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  height: 64px;
+}
+
+.topbar .brand {
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: #ffffff;
+  margin-right: auto; 
+}
+.top-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* --- Search Bar on Topbar --- */
+.search-wrapper {
+  margin-left: auto;   /* ดันตัวเองไปทางขวา */
+  margin-right: 300px;  /* เว้นห่างจากปุ่ม Login */
+  width: 300px;        /* ความกว้างช่องค้นหา */
+  position: relative;  
+}
+
+.top-search-input {
+  width: 100%;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.top-search-input:focus {
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
+}
+
+.search-results-dropdown {
+  position: absolute;
+  top: 42px;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  z-index: 1000;
+  overflow: hidden;
+  display: none;
+  color: #333;
+}
+
+.search-item {
+  padding: 10px 15px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  text-align: left;
+}
+
+.search-item:hover {
+  background-color: #f5f5f5;
+}
+
+/* =========================================
+   5. COMPONENTS (Buttons, Inputs, Cards)
+   ========================================= */
+.btn {
+  border: 0;
+  padding: 10px 14px;
   border-radius: 10px;
+  background: var(--accent);
+  color: #222;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-.menuImg {
+.btn:hover { filter: brightness(0.95); }
+
+.btn.small { padding: 6px 12px; font-size: 0.9rem; }
+.btn.ghost { background: transparent; border: 1px solid #eee; }
+
+input, textarea {
   width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  outline: none;
+}
+input:focus, textarea:focus { border-color: var(--accent); }
+
+.hidden { display: none !important; }
+.smallBtn { padding: 4px 10px; border-radius: 6px; border: 1px solid #ddd; background:#fff; cursor:pointer; font-weight:700; }
+
+/* =========================================
+   6. SHOP GRID & CARDS (Index Page)
+   ========================================= */
+.shopGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.shopCard {
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 6px 18px var(--card-shadow);
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.2s;
+}
+
+.shopCard:hover { transform: translateY(-4px); }
+.shopCard h3 { margin: 8px 0 4px; font-size: 1.1rem; }
+
+.imgBox {
+  height: 120px;
+  background: #f2f2f2;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.shopImg { width: 100%; height: 100%; object-fit: cover; }
+
+/* =========================================
+   7. BANNER & SLIDER
+   ========================================= */
+.adBanner {
+  margin-top: 70px;    /* ระยะห่างจากด้านบน */
+  margin-bottom: 20px;
+  height: 180px;
+  overflow: hidden;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  position: relative;
+  background: #fff;
+}
+
+.adSlides {
+  display: flex;
   height: 100%;
+  width: 100%;
+  transition: transform 0.5s ease-in-out;
+}
+
+/* คลาสสำหรับปิด Animation ตอนวนลูป */
+.no-transition { transition: none !important; }
+
+.adItem {
+  min-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 30px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.adItem img {
+  width: 140px;
+  height: 140px;
   object-fit: cover;
   border-radius: 8px;
+  margin-right: 20px;
 }
 
-/* สำหรับหัวข้อ "ยืนยันการชำระ" และ "เลือกวิธีชำระเงิน" */
-h2 {
-    /* เพิ่มระยะห่างด้านล่างหัวข้อ */
-    margin-bottom: 1.0rem; 
-    /* **แก้ไข** เพิ่ม padding-top เพื่อให้หัวข้อเว้นระยะห่างจากขอบด้านบน */
-    padding-top: 20px;
+.adItem h4 { margin: 0 0 5px 0; font-size: 1.5em; color: #333; }
+.adItem p { margin: 0; color: var(--muted); }
+
+.adCallToAction {
+  background: var(--accent);
+  padding: 8px 15px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
-/* สำหรับกล่องสรุปรายการสินค้า */
-#summaryBox {
-    /* เพิ่มขอบเขต/ระยะห่างภายในกล่อง */
-    padding: 5px 20px;
-    /* อาจจะเพิ่มเส้นขอบเพื่อให้ดูเป็นกล่องชัดเจนขึ้น */
-    border: 1px solid #ddd; 
-    border-radius: 6px;
-    /* เพิ่มระยะห่างด้านล่างกล่องสรุป */
-    margin-bottom: 1.5rem;
-}
-
-/* ปุ่มแบนเนอร์แบบพรีเมียม */
+/* Navigation Buttons for Banner */
 .adBtn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255,255,255,0.6);
-
-  width: 42px;
-  height: 42px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(4px);
+  border: none;
+  width: 40px; height: 40px;
   border-radius: 50%;
+  display: flex; justify-content: center; align-items: center;
+  font-size: 20px; color: #333;
+  cursor: pointer; z-index: 10;
+  transition: 0.2s;
+}
+.adBtn:hover { background: rgba(255,255,255,1); transform: translateY(-50%) scale(1.1); }
+.adPrev { left: 10px; }
+.adNext { right: 10px; }
 
+/* =========================================
+   8. MENU PAGE LAYOUT
+   ========================================= */
+.menuLayout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 18px;
+  align-items: start;
+}
+@media(max-width: 940px){
+  .menuLayout { grid-template-columns: 1fr; }
+  .summaryColumn { order: 2; }
+  .menuColumn { order: 1; }
+}
+
+.menuCard {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 10px var(--card-shadow);
   display: flex;
-  justify-content: center;
-  align-items: center;
-
-  font-size: 22px;
-  font-weight: bold;
-  color: #333;
-
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-  cursor: pointer;
-
-  transition: all 0.18s ease-out;
-  z-index: 10;
-}
-
-.adBtn:hover {
-  background: rgba(255,255,255,0.9);
-  transform: translateY(-50%) scale(1.12);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.16);
-}
-
-.adPrev {
-  left: 10px;
-}
-
-.adNext {
-  right: 10px;
-}
-
-/* ทำให้ปุ่ม “เพิ่ม” อยู่ตำแหน่งเดียวกันทุกการ์ด */
-.qtyRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.menuInfo {
-  width: 100%;
-}
-
-.menuInfo > div:first-child {
-  display: flex;
-  justify-content: space-between;
+  gap: 12px;
   align-items: center;
 }
 
-.qtyRow .btn.small {
-  margin-left: auto;  /* บังคับให้ปุ่มไปสุดด้านขวา */
+.menuCard .imgBox { width: 96px; height: 80px; flex-shrink: 0; margin-bottom: 0; }
+.menuImg { width: 100%; height: 100%; object-fit: cover; }
+
+.menuInfo { width: 100%; }
+.menuInfo > div:first-child { display: flex; justify-content: space-between; margin-bottom: 8px; }
+
+.qtyRow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.qtyRow .btn.small { margin-left: auto; } /* ดันปุ่มเพิ่มไปขวาสุด */
+
+/* Summary (Menu Page) */
+.summaryColumn { position: relative; }
+.summaryCard {
+  position: sticky;
+  top: 80px; /* เกาะติดด้านบนเวลาเลื่อน */
+  background: var(--bg);
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
 }
 
+#orderSummary {
+  max-height: 300px;
+  overflow: auto;
+  margin-bottom: 12px;
+  padding: 10px;
+  background: #fafafa;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+}
+
+.tick { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.tick input { width: 16px; height: 16px; margin: 0; }
+
+.summaryFooter { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed #ddd; }
+.totalLine { font-weight: 700; font-size: 1.2rem; text-align: right; }
+
+/* =========================================
+   9. PAYMENT & WAITING PAGES
+   ========================================= */
+h2 { margin-bottom: 1.5rem; color: #333; }
+
+#summaryBox {
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  background: #fafafa;
+  text-align: left;
+}
+
+.queueCard {
+  text-align: center;
+  padding: 30px 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  margin-bottom: 20px;
+}
+
+#queueNumber { font-size: 4rem; margin: 10px 0; color: var(--accent); line-height: 1; }
+#queueStatus { font-size: 1.1rem; color: var(--muted); }

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>เข้าสู่ระบบ - EasyMeal</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="data.js"></script>
 </head>
 <body>
   <header class="topbar">
@@ -14,9 +15,12 @@
     </div>
   </header>
 
-  <main class="wide-container"> <h2>เข้าสู่ระบบด้วยเบอร์โทร</h2>
-    <p>กรอกเบอร์โทรเพื่อจำผู้ใช้ไว้บนเครื่อง (local)</p>
-    <input id="phoneInput" placeholder="กรอกเบอร์โทร (ตัวเลขเท่านั้น)" />
+  <main class="wide-container"> 
+    <h2>เข้าสู่ระบบนักศึกษา</h2>
+    <p>กรุณากรอกรหัสนักศึกษา (มหาวิทยาลัยศรีปทุม)</p>
+    
+    <input id="studentIdInput" placeholder="รหัสนักศึกษา 8 หลัก (ไม่ต้องมีขีด)" maxlength="8" />
+    
     <div style="margin-top:8px">
       <button class="btn" onclick="doLogin()">ยืนยัน</button>
       <button class="btn ghost" onclick="location.href='index.html'">ยกเลิก</button>
@@ -25,12 +29,15 @@
 
 <script>
 function doLogin(){
-  const phone = document.getElementById('phoneInput').value.trim();
-  if(!/^\d{8,15}$/.test(phone)){
-    alert('กรุณากรอกเบอร์โทรให้ถูกต้อง (8-15 ตัวเลข)');
+  const stdId = document.getElementById('studentIdInput').value.trim();
+  
+  // ตรวจสอบว่าเป็นตัวเลข 8 หลัก หรือไม่
+  if(!/^\d{8}$/.test(stdId)){
+    alert('กรุณากรอกรหัสนักศึกษา 8 หลักให้ถูกต้อง');
     return;
   }
-  localStorage.setItem('user', phone);
+  
+  localStorage.setItem('user', stdId);
   alert('เข้าสู่ระบบสำเร็จ');
   location.href = 'index.html';
 }

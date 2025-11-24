@@ -10,31 +10,170 @@
   <header class="topbar">
     <div class="brand">EasyMeal</div>
     <div class="top-actions">
+      <span id="userLabel" class="user-label hidden"></span>
       <button class="btn small" onclick="location.href='index.html'">หน้าหลัก</button>
     </div>
   </header>
 
-  <main class="container" style="text-align:center">
+  <main class="wide-container" style="text-align:center">
     <h2>สถานะคำสั่งซื้อ</h2>
+    
     <div class="queueCard">
       <p>หมายเลขคิวของคุณคือ</p>
-      <h1 id="queueNumber">1</h1>
-      <p id="queueStatus">กำลังเตรียมอาหาร... กรุณารอสักครู่ (ประมาณ 10 วินาที)</p>
+      <h1 id="queueNumber">...</h1>
+      <p id="queueStatus" style="color:#e67e22; font-weight:bold;">กำลังเตรียมอาหาร...</p>
     </div>
 
-    <div style="margin-top:14px">
+    <div style="margin-top: 20px; text-align: left; background: #fafafa; padding: 15px; border-radius: 10px; border: 1px solid #eee;">
+      <h3 style="border-bottom: 1px solid #ddd; padding-bottom: 8px;">ใบเสร็จรายการอาหาร</h3>
+      
+      <div id="receiptList"></div>
+      
+      <div style="margin-top:10px; border-top: 1px dashed #bbb; padding-top: 10px; display:flex; justify-content:space-between; font-weight:bold; font-size: 1.1em;">
+        <span>รวมสุทธิ</span>
+        <span><span id="receiptTotal">0</span> บาท</span>
+      </div>
+    </div>
+
+    <div style="margin-top:20px">
       <button class="btn" onclick="location.href='index.html'">กลับหน้าหลัก</button>
     </div>
   </main>
 
 <script>
-// รอ 15 วินาที จากนั้นเปลี่ยนสถานะเป็นเสร็จ
+/* ----------------------------------------------------
+   1. ข้อมูลเมนูและราคา (ต้องมีเพื่อใช้คำนวณเงินในหน้านี้)
+---------------------------------------------------- */
+const menus = {
+  somtum: {
+    'ตำไทย': { price: 50 }, 
+    'ตำปูปลาร้า': { price: 60 }, 
+    'คอหมูย่าง': { price: 70 }, 
+    'ข้าวเหนียว': { price: 10 }
+  },
+  tamsang: {
+    'ข้าวผัดกะเพราหมูกรอบ': { price: 55 }, 
+    'ข้าวผัดหมูสับ': { price: 50 }, 
+    'ผัดซีอิ๊วหมู': { price: 55 }, 
+    'ผัดมาม่า': { price: 50 }, 
+    'ไข่ดาว': { price: 10 }
+  },
+  noodle: {
+    'บะหมี่น้ำหมูแดง': { price: 50 }, 
+    'เย็นตาโฟ': { price: 60 }, 
+    'ก๋วยเตี๋ยวเรือ': { price: 55 }, 
+    'เกาเหลา': { price: 60 }
+  },
+  friedchicken: {
+    'น่องไก่ทอด 2 ชิ้น': { price: 40 }, 
+    'นักเก็ตไก่': { price: 55 }, 
+    'ปีกไก่ทอด': { price: 25 },
+    'ข้าวเหนียว': { price: 10 }
+  },
+  dessert: {
+    'บิงซู นมสด': { price: 70 }, 
+    'บิงซู โอวัลติน': { price: 70 }, 
+    'บิงซู มัจฉะ': { price: 70 },
+    'บิงซู สตรอเบอร์รี่': { price: 70 }
+  }
+};
+
+/* ----------------------------------------------------
+   2. แสดง User
+---------------------------------------------------- */
+const user = localStorage.getItem('user');
+const userLabel = document.getElementById('userLabel');
+if(user){
+  userLabel.innerText = "User: " + user;
+  userLabel.classList.remove('hidden');
+}
+
+/* ----------------------------------------------------
+   3. สร้างเลขคิวจำลอง
+---------------------------------------------------- */
+// ถ้ามีเลขคิวส่งมาจาก URL (เช่น cash.html?q=1234) ให้ใช้เลขนั้น
+// ถ้าไม่มี ให้สุ่มใหม่
+const urlParams = new URLSearchParams(window.location.search);
+let qCode = urlParams.get('q');
+if(!qCode) {
+    qCode = "A" + (Math.floor(Math.random() * 100) + 1);
+}
+document.getElementById('queueNumber').innerText = qCode;
+
+
+/* ----------------------------------------------------
+   4. ดึงรายการอาหารที่สั่ง (finishedOrder) มาแสดงราคา
+---------------------------------------------------- */
+const finishedOrder = JSON.parse(localStorage.getItem('finishedOrder') || 'null');
+const receiptList = document.getElementById('receiptList');
+const receiptTotal = document.getElementById('receiptTotal');
+
+if(finishedOrder && finishedOrder.cart) {
+  let html = '<ul style="padding-left: 20px; list-style: none; margin: 0;">';
+  let totalMoney = 0;
+  
+  // ชื่อร้านที่ลูกค้าสั่ง
+  const shopName = finishedOrder.shop; 
+
+  finishedOrder.cart.forEach(item => {
+    // 1. ดึงข้อมูลราคาจากตัวแปร menus ด้านบน
+    // ใช้ ?. เพื่อกัน Error กรณีหาเมนูไม่เจอ
+    const menuInfo = menus[shopName]?.[item.menuName];
+    
+    if(menuInfo) {
+        // คำนวณราคา
+        let pricePerItem = menuInfo.price;
+        if(item.special) pricePerItem += 10; // ถ้าพิเศษ +10 บาท
+        
+        let sumPrice = pricePerItem * item.qty; // ราคารวมของเมนูนี้
+        totalMoney += sumPrice;
+
+        // สร้าง HTML แสดงผลแต่ละบรรทัด
+        html += `
+          <li style="display:flex; justify-content:space-between; margin-bottom:6px; border-bottom:1px solid #f0f0f0; padding-bottom:4px;">
+            <span>
+                ${item.menuName} ${item.special ? '(พิเศษ)' : ''} 
+                <span style="color:#888; font-size:0.9em;">x${item.qty}</span>
+            </span>
+            <span>${sumPrice} บ.</span>
+          </li>
+        `;
+    }
+  });
+  html += '</ul>';
+  
+  // แสดง Note ถ้ามี
+  if(finishedOrder.note) {
+    html += `<p style="color:red; font-size:0.9em; margin-top:8px;">*หมายเหตุ: ${finishedOrder.note}</p>`;
+  }
+  
+  // แสดงรูปแบบการรับ (ทานที่ร้าน / กลับบ้าน)
+  let eatType = "";
+  if(finishedOrder.eatHere) eatType = "ทานที่ร้าน";
+  if(finishedOrder.takeAway) eatType = "กลับบ้าน";
+  if(eatType) {
+      html += `<p style="font-size:0.9em; color:#555; margin-top:5px;">รับสินค้า: ${eatType}</p>`;
+  }
+
+  receiptList.innerHTML = html;
+  receiptTotal.innerText = totalMoney.toLocaleString(); // ใส่ลูกน้ำคั่นหลักพัน
+  
+} else {
+  receiptList.innerHTML = '<p style="text-align:center; color:#999;">ไม่พบรายการคำสั่งซื้อล่าสุด</p>';
+}
+
+/* ----------------------------------------------------
+   5. จำลองสถานะทำอาหาร (10 วินาทีเสร็จ)
+---------------------------------------------------- */
 setTimeout(() => {
-  document.getElementById('queueStatus').innerText = 'อาหารของคุณเสร็จแล้ว สามารถมารับได้เลย \n ทานให้อร่อยนะครับ/ค่ะ';
-  // ถ้าต้องการเล่นเสียง ให้ผู้ใช้ใส่ <audio> และเรียก play()
-    var audio = new Audio('sound.mp3');
+  const status = document.getElementById('queueStatus');
+  status.innerText = 'อาหารเสร็จเรียบร้อย! เชิญรับที่เคาน์เตอร์';
+  status.style.color = 'green';
+  
+  var audio = new Audio('sound.mp3');
     audio.play();
 }, 10000);
+
 </script>
 </body>
 </html>

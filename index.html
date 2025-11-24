@@ -3,167 +3,241 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>เลือกร้านอาหาร</title>
+  <title>เลือกร้านอาหาร - EasyMeal</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="topbar">
     <div class="brand">EasyMeal</div>
+
+    <div class="search-wrapper">
+        <input type="text" id="searchInput" class="top-search-input" 
+               placeholder="ค้นหาเมนู..." onkeyup="doSearch()">
+        <div id="searchResults" class="search-results-dropdown"></div>
+    </div>
+
     <div class="top-actions">
       <span id="userLabel" class="user-label hidden"></span>
       <button id="loginBtn" class="btn small" onclick="location.href='login.html'">เข้าสู่ระบบ</button>
       <button id="logoutBtn" class="btn small hidden" onclick="doLogout()">ออกจากระบบ</button>
     </div>
-  </header>
+</header>
 
   <main class="container">
-    <h2>วันนี้คุณอยากทานอะไร?</h2>
+    
+    <div class="adBanner">
+      <button class="adBtn adPrev" onclick="prevSlide()">❮</button>
+      <div class="adSlides" id="adSlides"></div>
+      <button class="adBtn adNext" onclick="nextSlide()">❯</button>
+    </div>
 
+    
+
+    <h2>Food Center ในมหาวิทยาลัยศรีปทุม</h2>
     <div class="shopGrid">
-
       <div class="shopCard" onclick="openShop('somtum')">
-        <div class="imgBox">
-          <img src="img/หน้า Menu/ส้มตำ.webp" class="shopImg">
-        </div>
+        <div class="imgBox"><img src="img/หน้า Menu/ส้มตำ.webp" class="shopImg"></div>
         <h3>ร้านส้มตำ</h3>
       </div>
-
       <div class="shopCard" onclick="openShop('tamsang')">
-        <div class="imgBox">
-          <img src="img/หน้า Menu/ตามสั่ง.jpg" class="shopImg">
-        </div>
+        <div class="imgBox"><img src="img/หน้า Menu/ตามสั่ง.jpg" class="shopImg"></div>
         <h3>ร้านตามสั่ง</h3>
       </div>
-
       <div class="shopCard" onclick="openShop('noodle')">
-        <div class="imgBox">
-          <img src="img/หน้า Menu/ก๋วยเตี๊ยว.webp" class="shopImg">
-        </div>
+        <div class="imgBox"><img src="img/หน้า Menu/ก๋วยเตี๊ยว.webp" class="shopImg"></div>
         <h3>ร้านก๋วยเตี๋ยว</h3>
       </div>
-
       <div class="shopCard" onclick="openShop('friedchicken')">
-        <div class="imgBox">
-          <img src="img/หน้า Menu/ไก่ทอด.jpg" class="shopImg">
-        </div>
+        <div class="imgBox"><img src="img/หน้า Menu/ไก่ทอด.jpg" class="shopImg"></div>
         <h3>ร้านไก่ทอด</h3>
       </div>
-
       <div class="shopCard" onclick="openShop('dessert')">
-        <div class="imgBox">
-          <img src="img/หน้า Menu/บิงซู.jpg" class="shopImg">
-        </div>
+        <div class="imgBox"><img src="img/หน้า Menu/บิงซู.jpg" class="shopImg"></div>
         <h3>ร้านบิงซู</h3>
       </div>
     </div>
-
-    <div class="adBanner">
-    <button class="adBtn adPrev" onclick="prevSlide()">❮</button>
-
-    <div class="adSlides" id="adSlides"></div>
-
-    <button class="adBtn adNext" onclick="nextSlide()">❯</button>
-</div>
-
-
-
   </main>
 
 <script>
-function openShop(shop){
-  localStorage.removeItem('cart');
-  localStorage.setItem('currentShop', shop);
-  location.href = 'menu.html?shop=' + shop;
-}
-
-// **[เริ่ม]** โค้ดสำหรับส่วนโฆษณา/แบนเนอร์ และการแสดงผลผู้ใช้
-
-// ข้อมูลเมนูโฆษณา (อ้างอิงจาก Path รูปภาพที่มีอยู่)
-const adData = [
-    { title: 'ตำปูปลาร้าสุดแซ่บ', description: 'ร้านส้มตำ', img: 'somtum/ตำปูปลาร้า.webp', shop: 'somtum' },
-    { title: 'ข้าวผัดกะเพราหมูกรอบ', description: 'ร้านตามสั่ง', img: 'ตามสั่ง/กะเพราหมูกรอบ.jpg', shop: 'tamsang' },
-    { title: 'เย็นตาโฟอร่อยถึงใจ', description: 'ร้านก๋วยเตี๋ยว', img: 'noodle/เย็นตาโฟ.jpg', shop: 'noodle' },
-    { title: 'น่องไก่ทอดกรอบ', description: 'ร้านไก่ทอด', img: 'friedchicken/น่องไก่.webp', shop: 'friedchicken' },
-    { title: 'บิงซู มัจฉะ', description: 'ร้านบิงซู', img: 'dessert/มัจฉะ.jpg', shop: 'dessert' },
-];
-
-const slidesContainer = document.getElementById('adSlides');
-adData.forEach(data => {
-    const item = document.createElement('div');
-    item.className = 'adItem';
-    // คลิกที่โฆษณาแล้วไปยังหน้าร้านนั้น
-    item.onclick = () => openShop(data.shop);
-    item.innerHTML = `
-        <img src="img/${data.img}" alt="${data.title}">
-        <div style="flex-grow:1">
-            <h4>${data.title}</h4>
-            <p>${data.description}</p>
-        </div>
-        <div class="adCallToAction">สั่งเลย</div>
-    `;
-    slidesContainer.appendChild(item);
-});
-
-let currentSlide = 0;
-const totalSlides = adData.length;
-
-function nextSlide() {
-    currentSlide++;
-    if (currentSlide >= totalSlides) {
-        currentSlide = 0;
-    }
-    const offset = -currentSlide * 100;
-    slidesContainer.style.transform = `translateX(${offset}%)`;
-}
-
-// ตั้งเวลาให้เปลี่ยนสไลด์ทุก 4000 มิลลิวินาที (4 วินาที)
-setInterval(nextSlide, 6000);
-
-// 🟢 โค้ดสำหรับแสดง User Label และจัดการปุ่ม Login/Logout
+// --- ส่วนจัดการ User (เหมือนเดิม) ---
 let user = localStorage.getItem('user');
 const userLabel = document.getElementById('userLabel');
 const loginBtn = document.getElementById('loginBtn');
 const logoutBtn = document.getElementById('logoutBtn');
 
-userLabel.innerText = user || 'Guest';
-
 if(user) {
+  userLabel.innerText = "สวัสดีคุณ: " + user; // แสดงเบอร์
   userLabel.classList.remove('hidden');
-  loginBtn.classList.add('hidden');       // 🔴 ซ่อนปุ่ม 'เข้าสู่ระบบ'
-  logoutBtn.classList.remove('hidden');   // 🟢 แสดงปุ่ม 'ออกจากระบบ'
+  loginBtn.classList.add('hidden');
+  logoutBtn.classList.remove('hidden');
 } else {
-  loginBtn.classList.remove('hidden'); 
-  logoutBtn.classList.add('hidden'); 
+  loginBtn.classList.remove('hidden');
+  logoutBtn.classList.add('hidden');
 }
 
-// 🟢 ฟังก์ชันใหม่: ออกจากระบบ
 function doLogout(){
   localStorage.removeItem('user');
   alert('ออกจากระบบสำเร็จ');
   location.href = 'index.html';
 }
 
-// **[สิ้นสุด]** โค้ดสำหรับส่วนโฆษณา/แบนเนอร์ และการแสดงผลผู้ใช้
+function openShop(shop){
+  localStorage.removeItem('cart');
+  localStorage.setItem('currentShop', shop);
+  location.href = 'menu.html?shop=' + shop;
+}
 
-function nextSlide() {
-    currentSlide++;
-    if (currentSlide >= totalSlides) {
-        currentSlide = 0;
-    }
+// --- ส่วน Banner ---
+const adData = [
+    { title: 'ตำปูปลาร้า', description: 'ร้านส้มตำ', img: 'somtum/ตำปูปลาร้า.webp', shop: 'somtum' },
+    { title: 'กะเพราหมูกรอบ', description: 'ร้านตามสั่ง', img: 'ตามสั่ง/กะเพราหมูกรอบ.jpg', shop: 'tamsang' },
+    { title: 'เย็นตาโฟ', description: 'ร้านก๋วยเตี๋ยว', img: 'noodle/เย็นตาโฟ.jpg', shop: 'noodle' },
+    { title: 'ไก่ทอด', description: 'ร้านไก่ทอด', img: 'friedchicken/น่องไก่.webp', shop: 'friedchicken' },
+    { title: 'บิงซู มัจฉะ', description: 'ร้านบิงซู', img: 'dessert/มัจฉะ.jpg', shop: 'dessert' },
+];
+
+const slidesContainer = document.getElementById('adSlides');
+
+// 1. สร้าง Slide ตามข้อมูลปกติ
+adData.forEach(data => {
+    createSlideItem(data);
+});
+
+// 2. [สำคัญ] โคลน Slide ตัวแรก ไปแปะไว้ท้ายสุด (เพื่อทำภาพลวงตาตอนวนลูป)
+const firstClone = adData[0];
+createSlideItem(firstClone, true); // true คือบอกว่าเป็นตัว Clone
+
+function createSlideItem(data, isClone = false) {
+    const item = document.createElement('div');
+    item.className = 'adItem';
+    
+    // ❌ ลบบรรทัดนี้ออกครับ (ที่เป็นตัวปัญหาทำให้กดได้ทั้งแถบ)
+    // item.onclick = () => openShop(data.shop);
+
+    // ✅ ย้าย onclick มาใส่ใน div class="adCallToAction" แทน
+    item.innerHTML = `
+        <img src="img/${data.img}" alt="${data.title}">
+        <div style="flex-grow:1">
+            <h4>${data.title}</h4>
+            <p>${data.description}</p>
+        </div>
+        <div class="adCallToAction" onclick="openShop('${data.shop}')">สั่งเลย</div>
+    `;
+    
+    if(isClone) item.id = 'first-clone';
+    slidesContainer.appendChild(item);
+}
+
+let currentSlide = 0;
+const totalSlides = adData.length; // จำนวนรูปจริง (5 รูป)
+
+function updateSlide(){
     const offset = -currentSlide * 100;
     slidesContainer.style.transform = `translateX(${offset}%)`;
+}
+
+function nextSlide() {
+    // ถ้าตอนนี้อยู่ที่รูปสุดท้าย (ก่อนจะไปตัว Clone)
+    if (currentSlide >= totalSlides) {
+        return; // ป้องกันการกดรัวๆ
+    }
+
+    currentSlide++;
+    slidesContainer.classList.remove('no-transition'); // เปิด Animation
+    updateSlide();
+
+    // เช็คว่า ถ้าเราเลื่อนมาถึงตัว Clone (index = 5) แล้ว
+    if (currentSlide === totalSlides) {
+        // รอให้ Animation เลื่อนเสร็จก่อน (0.5 วินาที ตามที่ตั้งใน CSS)
+        setTimeout(() => {
+            // 1. ปิด Animation ชั่วคราว
+            slidesContainer.classList.add('no-transition');
+            
+            // 2. วาร์ปกลับไปที่รูปแรก (Index 0) ทันที
+            currentSlide = 0;
+            updateSlide();
+            
+        }, 500); // 500ms ต้องตรงกับ transition ใน CSS (0.5s)
+    }
 }
 
 function prevSlide() {
-    currentSlide--;
-    if (currentSlide < 0) {
-        currentSlide = totalSlides - 1;
+    if (currentSlide <= 0) {
+        // ถ้าอยู่รูปแรกแล้วกดถอยหลัง -> ให้วาร์ปไปที่ตัว Clone ก่อน
+        slidesContainer.classList.add('no-transition');
+        currentSlide = totalSlides; 
+        updateSlide();
+
+        // รอเสี้ยววินาทีเพื่อให้ Browser รับรู้การย้ายตำแหน่ง แล้วค่อยเลื่อนจริง
+        setTimeout(() => {
+            slidesContainer.classList.remove('no-transition');
+            currentSlide--;
+            updateSlide();
+        }, 20);
+    } else {
+        slidesContainer.classList.remove('no-transition');
+        currentSlide--;
+        updateSlide();
     }
-    const offset = -currentSlide * 100;
-    slidesContainer.style.transform = `translateX(${offset}%)`;
 }
 
-</script>
+// ตั้งเวลาเลื่อนอัตโนมัติ (4 วินาที)
+setInterval(nextSlide, 4000);
 
+// --- ส่วน Search Engine (ใหม่) ---
+// รวมเมนูทั้งหมดไว้ที่นี่เพื่อใช้ค้นหา
+const allMenus = [
+  { name: 'ตำไทย', shop: 'somtum', shopTH: 'ร้านส้มตำ' },
+  { name: 'ตำปูปลาร้า', shop: 'somtum', shopTH: 'ร้านส้มตำ' },
+  { name: 'คอหมูย่าง', shop: 'somtum', shopTH: 'ร้านส้มตำ' },
+  
+  { name: 'ข้าวผัดกะเพราหมูกรอบ', shop: 'tamsang', shopTH: 'ร้านตามสั่ง' },
+  { name: 'ข้าวผัดหมูสับ', shop: 'tamsang', shopTH: 'ร้านตามสั่ง' },
+  { name: 'ผัดซีอิ๊วหมู', shop: 'tamsang', shopTH: 'ร้านตามสั่ง' },
+  { name: 'ผัดมาม่า', shop: 'tamsang', shopTH: 'ร้านตามสั่ง' },
+
+  { name: 'บะหมี่น้ำหมูแดง', shop: 'noodle', shopTH: 'ร้านก๋วยเตี๋ยว' },
+  { name: 'เย็นตาโฟ', shop: 'noodle', shopTH: 'ร้านก๋วยเตี๋ยว' },
+  { name: 'ก๋วยเตี๋ยวเรือ', shop: 'noodle', shopTH: 'ร้านก๋วยเตี๋ยว' },
+  
+  { name: 'น่องไก่ทอด', shop: 'friedchicken', shopTH: 'ร้านไก่ทอด' },
+  { name: 'นักเก็ตไก่', shop: 'friedchicken', shopTH: 'ร้านไก่ทอด' },
+  
+  { name: 'บิงซู นมสด', shop: 'dessert', shopTH: 'ร้านบิงซู' },
+  { name: 'บิงซู มัจฉะ', shop: 'dessert', shopTH: 'ร้านบิงซู' },
+  { name: 'บิงซู โอวัลติน', shop: 'dessert', shopTH: 'ร้านบิงซู' },
+];
+
+function doSearch() {
+  const query = document.getElementById('searchInput').value.trim();
+  const resultsBox = document.getElementById('searchResults');
+  
+  // ถ้าไม่มีข้อความ ให้ซ่อนกล่องผลลัพธ์
+  if(query === '') {
+    resultsBox.style.display = 'none';
+    return;
+  }
+
+  // กรองเมนู (Filter) ที่มีคำค้นหาอยู่
+  const found = allMenus.filter(item => item.name.includes(query));
+
+  if(found.length > 0) {
+    let html = '';
+    found.forEach(item => {
+      html += `
+        <div class="search-item" onclick="openShop('${item.shop}')">
+          <span>${item.name}</span>
+          <span style="color:#888; font-size:0.9em">${item.shopTH}</span>
+        </div>
+      `;
+    });
+    resultsBox.innerHTML = html;
+    resultsBox.style.display = 'block';
+  } else {
+    resultsBox.innerHTML = '<div class="search-item" style="cursor:default">ไม่พบเมนูนี้</div>';
+    resultsBox.style.display = 'block';
+  }
+}
+</script>
 </body>
 </html>

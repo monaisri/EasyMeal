@@ -9,12 +9,12 @@
 <body>
 
   <header class="topbar">
-    <div class="brand">EasyMeal</div>
-    <div class="top-actions">
-      <button class="btn small" onclick="location.href='menu.html'">ย้อนกลับ</button>
-      <button class="btn small" onclick="location.href='index.html'">หน้าหลัก</button>
-    </div>
-  </header>
+  <div class="brand">EasyMeal</div>
+  <div class="top-actions">
+     <span id="userLabel" class="user-label hidden"></span>
+     <button class="btn small" onclick="goBackToMenu()">ย้อนกลับ</button>
+</div>
+</header>
 
   <main class="wide-container">
     <h2>ยืนยันการชำระ</h2>
@@ -29,6 +29,14 @@
   </main>
 
 <script>
+
+  const user = localStorage.getItem('user');
+  const userLabel = document.getElementById('userLabel');
+  if(user){
+    userLabel.innerText = "User: " + user;
+    userLabel.classList.remove('hidden');
+  }
+  
 const draft = JSON.parse(localStorage.getItem('orderDraft') || 'null');
 if(!draft){
   alert("ไม่พบคำสั่งซื้อ กรุณากลับไปเลือกเมนู");
@@ -115,7 +123,11 @@ function togglePay(type){
     document.getElementById('payQR').checked = false;
   }
 }
-
+function goBackToMenu() {
+    // ดึงร้านล่าสุดที่เราเคยเข้า
+    const lastShop = localStorage.getItem('currentShop') || 'somtum';
+    location.href = 'menu.html?shop=' + lastShop;
+}
 // ----- ปุ่มยืนยันการชำระ -----
 function confirmPayment(){
   const payQR = document.getElementById('payQR').checked;

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>เมนู - EasyMeal</title>
   <link rel="stylesheet" href="style.css" />
-</head>
+  </head>
 
 <body>
   <header class="topbar">
@@ -18,7 +18,7 @@
     </div>
   </header>
 
-  <main class="container">
+  <main class="container" style="margin-top: 40px;">
     <h2 id="shopTitle">ร้านอาหาร</h2>
 
     <div class="menuLayout">
@@ -50,8 +50,6 @@
     </div>
   </main>
 
-
-
 <script>
 /* -------------------------------
       ระบบ Login / Logout
@@ -61,9 +59,8 @@ const userLabel = document.getElementById('userLabel');
 const logoutBtn = document.getElementById('logoutBtn');
 const loginBtn = document.getElementById('loginBtn'); 
 
-userLabel.innerText = user || 'Guest';
-
 if(user){
+    userLabel.innerText = "รหัสนศ: " + user; // แสดงรหัสนักศึกษา
     userLabel.classList.remove('hidden');
     logoutBtn.classList.remove('hidden');
 } 
@@ -141,7 +138,9 @@ renderSummary();
 
 function renderMenu(){
   const list = document.getElementById('menuList');
-  document.getElementById('shopTitle').innerText = shopNamesTH[shop];
+  if(shopNamesTH[shop]) {
+      document.getElementById('shopTitle').innerText = shopNamesTH[shop];
+  }
   list.innerHTML = '';
 
   Object.entries(menus[shop]).forEach(([menuName, item], idx) => {
@@ -150,7 +149,7 @@ function renderMenu(){
 
     div.innerHTML = `
       <div class="imgBox">
-        <img src="img/${item.img}" class="menuImg">
+        <img src="img/${item.img}" class="menuImg" onerror="this.src='https://via.placeholder.com/100?text=No+Image'">
       </div>
 
       <div class="menuInfo">
@@ -161,10 +160,9 @@ function renderMenu(){
 
         <div class="qtyRow">
           <button class="smallBtn" onclick="decQty(${idx})">–</button>
-          <div>จำนวน: <span id="qty-${idx}">0</span></div>
+          <div>จำนวน: <span id="qty-${idx}">1</span></div>
           <button class="smallBtn" onclick="incQty(${idx})">+</button>
 
-          <!-- แสดงพิเศษเฉพาะรายการที่ canSpecial -->
           ${item.canSpecial ? `
             <label class="tick">
               <input type="checkbox" id="special-${idx}"> พิเศษ (+10 ฿)
@@ -188,21 +186,23 @@ function incQty(idx){
 function decQty(idx){
   const qtyEl = document.getElementById(`qty-${idx}`);
   let q = parseInt(qtyEl.innerText);
-  if(q > 0) qtyEl.innerText = q - 1;
+  // แก้ไข: ไม่ให้ลดต่ำกว่า 1
+  if(q > 1) qtyEl.innerText = q - 1;
 }
 
 function addToCart(menuName){
   let tempIndex = Object.keys(menus[shop]).indexOf(menuName); 
 
-  const qty = parseInt(document.getElementById(`qty-${tempIndex}`).innerText);
+  const qtyEl = document.getElementById(`qty-${tempIndex}`);
+  const qty = parseInt(qtyEl.innerText);
   const item = menus[shop][menuName];
 
   const specialChecked = item.canSpecial
     ? document.getElementById(`special-${tempIndex}`).checked
     : false;
 
-  if(qty <= 0){
-    alert("กรุณาเลือกจำนวนก่อน");
+  if(qty < 1){
+    alert("จำนวนต้องมีอย่างน้อย 1 ชิ้น");
     return;
   }
 
@@ -210,12 +210,16 @@ function addToCart(menuName){
 
   if(itemIndex > -1){
     cart[itemIndex].qty += qty;
-    cart[itemIndex].special = specialChecked;
+    // อัปเดตสถานะพิเศษตามครั้งล่าสุด
+    if(specialChecked) cart[itemIndex].special = true;
   } else {
     cart.push({menuName: menuName, shop: shop, qty: qty, special: specialChecked});
   }
 
-  document.getElementById(`qty-${tempIndex}`).innerText = 0;
+  // แก้ไข: รีเซ็ตเป็น 1 (ไม่ใช่ 0) และเคลียร์ช่องติ๊กพิเศษ
+  qtyEl.innerText = 1;
+  if(item.canSpecial) document.getElementById(`special-${tempIndex}`).checked = false;
+
 
   saveAndRender();
 }
@@ -239,7 +243,9 @@ function renderSummary(){
   let html = '';
 
   cart.forEach(it => {
-    const item = menus[shop][it.menuName];
+
+    const item = menus[it.shop][it.menuName]; 
+    
     if(!item) return;
 
     const special = it.special ? 10 : 0;
@@ -248,14 +254,24 @@ function renderSummary(){
 
     html += `
       <div style="display:flex;justify-content:space-between">
-        <div>${it.menuName} x${it.qty} ${it.special ? '(พิเศษ)' : ''}</div>
+        <div>
+            <span style="font-size:0.8em; color:#888">[${shopNamesTH[it.shop]}]</span><br>
+            ${it.menuName} x${it.qty} ${it.special ? '(พิเศษ)' : ''}
+        </div>
         <div>${sum} ฿</div>
       </div>
+      <hr style="border:0; border-top:1px dashed #eee; margin:5px 0;">
     `;
   });
 
   summary.innerHTML = html;
   totalDisplay.innerText = total.toLocaleString();
+}
+
+// เพิ่มฟังก์ชันลบสินค้าทีละตัว
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    saveAndRender();
 }
 
 function clearCart(){
@@ -269,20 +285,37 @@ function toggleExclusive(a,b){
       document.getElementById(b).checked = false;
 }
 
+/* --- แก้ไขใน menu.html --- */
+
 function goToPayment(){
+  // 1. เช็คว่ามีของในตะกร้าไหม
   if(cart.length === 0){
     alert("กรุณาเลือกเมนูก่อนสั่ง");
     return;
   }
 
+  // 2. เช็คว่าเลือกรูปแบบการรับหรือยัง (ทานที่ร้าน / กลับบ้าน)
+  const isEatHere = document.getElementById('eatHere').checked;
+  const isTakeAway = document.getElementById('takeAway').checked;
+
+  // ถ้าไม่ได้ติ๊กทั้งคู่ (!false && !false) -> แจ้งเตือน
+  if(!isEatHere && !isTakeAway){
+    alert("กรุณาเลือกรูปแบบการรับสินค้า\n(ทานที่ร้าน หรือ กลับบ้าน)");
+    return; // จบการทำงาน ไม่ไปหน้าถัดไป
+  }
+
+
+  /* ------------------------------------------------ */
+
+  // 3. เตรียมข้อมูลส่งไปหน้า Payment
   const note = document.getElementById('noteArea').value;
 
   const data = {
     shop,
     cart,
     note,
-    eatHere: document.getElementById('eatHere').checked,
-    takeAway: document.getElementById('takeAway').checked
+    eatHere: isEatHere,
+    takeAway: isTakeAway
   };
 
   localStorage.setItem('orderDraft', JSON.stringify(data));
