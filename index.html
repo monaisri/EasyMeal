@@ -82,6 +82,13 @@ function doLogout(){
 }
 
 function openShop(shop){
+  const user = localStorage.getItem('user');
+  
+  if(!user) {
+    alert('กรุณาเข้าสู่ระบบก่อนเลือกซื้อสินค้า');
+    location.href = 'login.html'; // ดีดไปหน้า Login ทันที
+    return; // หยุดการทำงาน ไม่ให้ไปต่อ
+  }
   localStorage.removeItem('cart');
   localStorage.setItem('currentShop', shop);
   location.href = 'menu.html?shop=' + shop;

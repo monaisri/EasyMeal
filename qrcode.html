@@ -41,21 +41,27 @@ if(user && userLabel){
     userLabel.classList.remove('hidden');
 }
 
+/* --- qrcode.html --- */
+
 function confirmPaid(){
-  // 1. ดึงข้อมูล Order Draft มาก่อน
-  const draft = localStorage.getItem('orderDraft');
+  // 1. ดึงข้อมูล Order Draft มา
+  let draft = JSON.parse(localStorage.getItem('orderDraft'));
   
-  // 2. ย้ายไปเก็บใน 'finishedOrder' เพื่อให้ waiting.html ดึงไปใช้แสดงผล
   if(draft) {
-    localStorage.setItem('finishedOrder', draft);
+    // ✅ เพิ่ม: สร้างรหัสออเดอร์ (เช่น ORD-8842)
+    const uniqueID = "ORD-" + Math.floor(1000 + Math.random() * 9000);
+    
+    // ✅ เพิ่ม: ยัดรหัสนี้เข้าไปในข้อมูลออเดอร์
+    draft.orderID = uniqueID; 
+    
+    // บันทึกเป็น finishedOrder
+    localStorage.setItem('finishedOrder', JSON.stringify(draft));
   }
 
-  // 3. ลบของเก่าตามปกติ
+  // ลบตะกร้าแล้วไปหน้า Waiting
   localStorage.removeItem('orderDraft');
   localStorage.removeItem('cart');
-
-  // 4. ไปหน้า Waiting
-  location.href = 'waiting.html?q=1'; 
+  location.href = 'waiting.html'; 
 }
 </script>
 </body>

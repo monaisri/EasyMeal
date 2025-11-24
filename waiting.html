@@ -19,10 +19,14 @@
     <h2>สถานะคำสั่งซื้อ</h2>
     
     <div class="queueCard">
-      <p>หมายเลขคิวของคุณคือ</p>
-      <h1 id="queueNumber">...</h1>
-      <p id="queueStatus" style="color:#e67e22; font-weight:bold;">กำลังเตรียมอาหาร...</p>
-    </div>
+  <p>หมายเลขคิวของคุณคือ</p>
+  
+  <h1 id="queueNumber">A001</h1>
+
+  <p id="waitText" style="font-size: 1.2rem;">เหลืออีก <span style="color:#B33939; font-weight:bold;">1</span> คิว</p>
+
+  <p id="queueStatus" style="color:#e67e22; font-weight:bold;">กำลังเตรียมอาหาร...</p>
+</div>
 
     <div style="margin-top: 20px; text-align: left; background: #fafafa; padding: 15px; border-radius: 10px; border: 1px solid #eee;">
       <h3 style="border-bottom: 1px solid #ddd; padding-bottom: 8px;">ใบเสร็จรายการอาหาร</h3>
@@ -42,7 +46,7 @@
 
 <script>
 /* ----------------------------------------------------
-   1. ข้อมูลเมนูและราคา (ต้องมีเพื่อใช้คำนวณเงินในหน้านี้)
+   1. ข้อมูลเมนูและราคา
 ---------------------------------------------------- */
 const menus = {
   somtum: {
@@ -89,22 +93,38 @@ if(user){
 }
 
 /* ----------------------------------------------------
-   3. สร้างเลขคิวจำลอง
----------------------------------------------------- */
-// ถ้ามีเลขคิวส่งมาจาก URL (เช่น cash.html?q=1234) ให้ใช้เลขนั้น
-// ถ้าไม่มี ให้สุ่มใหม่
-const urlParams = new URLSearchParams(window.location.search);
-let qCode = urlParams.get('q');
-if(!qCode) {
-    qCode = "A" + (Math.floor(Math.random() * 100) + 1);
-}
-document.getElementById('queueNumber').innerText = qCode;
-
-
-/* ----------------------------------------------------
-   4. ดึงรายการอาหารที่สั่ง (finishedOrder) มาแสดงราคา
+   3. ระบบคิว (Queue System) - แก้ใหม่ให้เริ่มที่ 1
 ---------------------------------------------------- */
 const finishedOrder = JSON.parse(localStorage.getItem('finishedOrder') || 'null');
+let myQueue = "";
+
+// ตรวจสอบว่าออเดอร์นี้เคยได้คิวไปแล้วหรือยัง (กันกรณี User กด Refresh หน้าจอ)
+if(finishedOrder && finishedOrder.queueNo) {
+    // ถ้ามีแล้ว ให้ใช้เลขเดิม
+    myQueue = finishedOrder.queueNo;
+} else {
+    // ถ้ายังไม่มี (เป็นรายการใหม่) ให้ดึงเลขลำดับล่าสุดจากระบบ
+    // ถ้าไม่มีให้เริ่มที่ 0
+    let currentQ = parseInt(localStorage.getItem('systemQueueRunning') || '0');
+    
+    // บวกเพิ่ม 1 (เพื่อให้เริ่มที่ 1, 2, 3...)
+    currentQ++;
+    
+    // บันทึกค่าล่าสุดกลับลงเครื่อง
+    localStorage.setItem('systemQueueRunning', currentQ);
+    
+    // จัดรูปแบบ A001, A002
+    myQueue = "A" + String(currentQ).padStart(3, '0');
+    
+    // บันทึกเลขคิวลงในออเดอร์นี้ด้วย (เพื่อล็อคเลขไว้ ไม่ให้เปลี่ยนเวลารีเฟรช)
+    if(finishedOrder) {
+        finishedOrder.queueNo = myQueue;
+        localStorage.setItem('finishedOrder', JSON.stringify(finishedOrder));
+    }
+}
+
+document.getElementById('queueNumber').innerText = myQueue;
+
 const receiptList = document.getElementById('receiptList');
 const receiptTotal = document.getElementById('receiptTotal');
 
@@ -112,23 +132,19 @@ if(finishedOrder && finishedOrder.cart) {
   let html = '<ul style="padding-left: 20px; list-style: none; margin: 0;">';
   let totalMoney = 0;
   
-  // ชื่อร้านที่ลูกค้าสั่ง
   const shopName = finishedOrder.shop; 
 
   finishedOrder.cart.forEach(item => {
-    // 1. ดึงข้อมูลราคาจากตัวแปร menus ด้านบน
-    // ใช้ ?. เพื่อกัน Error กรณีหาเมนูไม่เจอ
+
     const menuInfo = menus[shopName]?.[item.menuName];
     
     if(menuInfo) {
-        // คำนวณราคา
         let pricePerItem = menuInfo.price;
-        if(item.special) pricePerItem += 10; // ถ้าพิเศษ +10 บาท
+        if(item.special) pricePerItem += 10;
         
-        let sumPrice = pricePerItem * item.qty; // ราคารวมของเมนูนี้
+        let sumPrice = pricePerItem * item.qty;
         totalMoney += sumPrice;
 
-        // สร้าง HTML แสดงผลแต่ละบรรทัด
         html += `
           <li style="display:flex; justify-content:space-between; margin-bottom:6px; border-bottom:1px solid #f0f0f0; padding-bottom:4px;">
             <span>
@@ -142,12 +158,11 @@ if(finishedOrder && finishedOrder.cart) {
   });
   html += '</ul>';
   
-  // แสดง Note ถ้ามี
   if(finishedOrder.note) {
     html += `<p style="color:red; font-size:0.9em; margin-top:8px;">*หมายเหตุ: ${finishedOrder.note}</p>`;
   }
   
-  // แสดงรูปแบบการรับ (ทานที่ร้าน / กลับบ้าน)
+  // แสดงรูปแบบการรับ
   let eatType = "";
   if(finishedOrder.eatHere) eatType = "ทานที่ร้าน";
   if(finishedOrder.takeAway) eatType = "กลับบ้าน";
@@ -156,23 +171,28 @@ if(finishedOrder && finishedOrder.cart) {
   }
 
   receiptList.innerHTML = html;
-  receiptTotal.innerText = totalMoney.toLocaleString(); // ใส่ลูกน้ำคั่นหลักพัน
+  receiptTotal.innerText = totalMoney.toLocaleString();
   
 } else {
   receiptList.innerHTML = '<p style="text-align:center; color:#999;">ไม่พบรายการคำสั่งซื้อล่าสุด</p>';
 }
 
-/* ----------------------------------------------------
-   5. จำลองสถานะทำอาหาร (10 วินาทีเสร็จ)
----------------------------------------------------- */
+document.getElementById('queueNumber').innerText = "A001";
+
+// 2. สั่งรอ 10 วินาที
 setTimeout(() => {
+  // ซ่อนข้อความ "เหลืออีก 1 คิว"
+  document.getElementById('waitText').style.display = 'none';
+
+  // เปลี่ยนสถานะเป็นเสร็จแล้ว
   const status = document.getElementById('queueStatus');
   status.innerText = 'อาหารเสร็จเรียบร้อย! เชิญรับที่เคาน์เตอร์';
   status.style.color = 'green';
   
-  var audio = new Audio('sound.mp3');
-    audio.play();
-}, 10000);
+  // เล่นเสียง
+  new Audio('sound.mp3').play().catch(e=>{});
+
+}, 10000); // 10000 ms = 10 วินาที
 
 </script>
 </body>

@@ -43,20 +43,17 @@ if(user && userLabel){
 }
 
 function confirmCash(){
-  // 1. ดึงข้อมูล Order Draft มาก่อน
-  const draft = localStorage.getItem('orderDraft');
+  let draft = JSON.parse(localStorage.getItem('orderDraft'));
   
-  // 2. ย้ายไปเก็บใน 'finishedOrder' เพื่อให้ waiting.html ดึงไปใช้แสดงผล
   if(draft) {
-    localStorage.setItem('finishedOrder', draft);
+    const uniqueID = "ORD-" + Math.floor(1000 + Math.random() * 9000);
+    draft.orderID = uniqueID; 
+    
+    localStorage.setItem('finishedOrder', JSON.stringify(draft));
   }
-
-  // 3. ลบของเก่าตามปกติ
   localStorage.removeItem('orderDraft');
   localStorage.removeItem('cart');
-
-  // 4. ไปหน้า Waiting
-  location.href = 'waiting.html?q=1'; 
+  location.href = 'waiting.html'; 
 }
 
 </script>
