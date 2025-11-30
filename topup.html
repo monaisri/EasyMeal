@@ -12,7 +12,7 @@
     <div class="top-actions">
       <span id="pointLabel" class="point-label hidden"></span>
       <span id="userLabel" class="user-label hidden"></span>
-      <button class="btn small" onclick="location.href='index.html'">หน้าหลัก</button>
+      <button class="btn small" onclick="goBack()">ยกเลิก/ย้อนกลับ</button>
     </div>
   </header>
 
@@ -30,12 +30,12 @@
 
     <div style="margin-top:12px">
       <button class="btn" onclick="confirmTopup()">ยืนยันการเติมเงิน</button>
-      <button class="btn ghost" onclick="location.href='index.html'">ยกเลิก</button>
+      <button class="btn ghost" onclick="goBack()">ยกเลิก</button>
     </div>
   </main>
 
 <script>
-// --- ส่วนแสดง User และ Point (Copy ไปใช้ทุกหน้า) ---
+// --- ส่วนแสดง User และ Point ---
 const user = localStorage.getItem('user');
 const userLabel = document.getElementById('userLabel');
 const pointLabel = document.getElementById('pointLabel');
@@ -44,14 +44,22 @@ if(user){
     userLabel.innerText = "User: " + user;
     userLabel.classList.remove('hidden');
 
-    // ดึง Point ปัจจุบัน
     let currentPoint = parseFloat(localStorage.getItem('userPoints') || '0');
-    pointLabel.innerText = "เงินในระบบ: " + currentPoint.toLocaleString() + " บ.";
+    pointLabel.innerText = "เงิน: " + currentPoint.toLocaleString() + " บ.";
     pointLabel.classList.remove('hidden');
 } else {
-    // ถ้ายังไม่ล็อกอิน ให้กลับไปหน้าล็อกอิน
     alert('กรุณาเข้าสู่ระบบก่อน');
     location.href = 'login.html';
+}
+
+// ✅ ฟังก์ชันเช็คทิศทางกลับ (Back / Cancel)
+function goBack(){
+    const urlParams = new URLSearchParams(window.location.search);
+    if(urlParams.get('from') === 'payment'){
+        location.href = 'payment.html';
+    } else {
+        location.href = 'index.html';
+    }
 }
 
 function confirmTopup(){
@@ -68,16 +76,17 @@ function confirmTopup(){
         return;
     }
 
-    // --- จำลองการเติมเงินสำเร็จ ---
+    // --- จำลองการเติมเงิน ---
     let amount = parseFloat(amountInput);
     let currentPoint = parseFloat(localStorage.getItem('userPoints') || '0');
     
-    // บวกเพิ่ม
     let newPoint = currentPoint + amount;
     localStorage.setItem('userPoints', newPoint);
 
     alert(`เติมเงินสำเร็จ ${amount} บาท! \nยอดเงินคงเหลือ: ${newPoint} บาท`);
-    location.href = 'index.html';
+
+    // ✅ ตรวจสอบว่าต้องกลับไปหน้าไหน
+    goBack(); 
 }
 </script>
 </body>

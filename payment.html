@@ -28,7 +28,7 @@
 
         <button class="btn" id="payBtn" onclick="confirmPayment()">ยืนยันชำระเงิน (ตัดยอดเงิน)</button>
         <div style="margin-top:10px">
-            <a href="topup.html" style="color: #B33939; text-decoration: underline; font-size: 0.9em;">เงินไม่พอ? คลิกเพื่อเติมเงิน</a>
+            <a href="topup.html?from=payment" style="color: #B33939; text-decoration: underline; font-size: 0.9em;">เงินไม่พอ? คลิกเพื่อเติมเงิน</a>
         </div>
     </div>
 
@@ -51,7 +51,6 @@ if(user){
     pointLabel.innerText = "เงิน: " + currentPoints.toLocaleString() + " บ.";
     pointLabel.classList.remove('hidden');
     
-    // แสดงในกล่องชำระเงินด้วย
     document.getElementById('myPointDisplay').innerText = currentPoints.toLocaleString();
 } else {
     alert("กรุณาเข้าสู่ระบบ");
@@ -67,7 +66,7 @@ if(!draft){
   location.href = "menu.html";
 }
 
-// ข้อมูลราคาเมนู (ต้องตรงกับหน้า menu.html)
+// ข้อมูลราคาเมนู
 const menus = {
   somtum: { 'ตำไทย': { price: 50 }, 'ตำปูปลาร้า': { price: 60 }, 'คอหมูย่าง': { price: 70 }, 'ข้าวเหนียว': { price: 10 } },
   tamsang: { 'ข้าวผัดกะเพราหมูกรอบ': { price: 55 }, 'ข้าวผัดหมูสับ': { price: 50 }, 'ผัดซีอิ๊วหมู': { price: 55 }, 'ผัดมาม่า': { price: 50 }, 'ไข่ดาว': { price: 10 } },
@@ -90,7 +89,6 @@ draft.cart.forEach(it => {
   let sum = (item.price + special) * it.qty;
   totalAmount += sum;
 
-  // ตรวจสอบสถานะ ใส่กล่อง/ใส่จาน รายเมนู
   let optText = it.takeAway ? "📦 ใส่กล่อง" : "🍽️ ใส่จาน";
 
   html += `<li style="margin-bottom:8px;">
@@ -113,7 +111,7 @@ document.getElementById("summaryBox").innerHTML = html;
 document.getElementById("totalPayDisplay").innerText = totalAmount.toLocaleString();
 
 /* ----------------------------------------------------
-   4. Functions: ย้อนกลับ & ยืนยันการชำระ
+   4. Functions
 ---------------------------------------------------- */
 function goBackToMenu() {
     const lastShop = localStorage.getItem('currentShop') || 'somtum';
@@ -121,29 +119,22 @@ function goBackToMenu() {
 }
 
 function confirmPayment(){
-  // 1. เช็คเงินพอไหม
   if(currentPoints < totalAmount){
       alert(`เงินของคุณไม่เพียงพอ (ขาด ${totalAmount - currentPoints} บาท)\nกรุณาเติมเงินเข้าระบบ`);
-      // ถ้าอยากให้เด้งไปหน้าเติมเงินเลย ให้ uncomment บรรทัดล่าง
-      // location.href = 'topup.html';
       return;
   }
 
-  // 2. ยืนยันตัดเงิน
   if(!confirm(`ยืนยันการชำระเงิน ${totalAmount} บาท?`)) return;
 
-  // 3. คำนวณเงินใหม่และบันทึก
   const newBalance = currentPoints - totalAmount;
   localStorage.setItem('userPoints', newBalance);
 
-  // 4. สร้าง Order ID และบันทึกข้อมูล Order สมบูรณ์
   const uniqueID = "ORD-" + Math.floor(1000 + Math.random() * 9000);
   draft.orderID = uniqueID; 
   draft.paymentMethod = 'Wallet'; 
   
   localStorage.setItem('finishedOrder', JSON.stringify(draft));
 
-  // 5. ล้างตะกร้า แล้วไปหน้า Waiting
   localStorage.removeItem('orderDraft');
   localStorage.removeItem('cart');
   
