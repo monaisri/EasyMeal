@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>เติมเงิน - EasyMeal</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">EasyMeal</div>
+    <div class="top-actions">
+      <span id="pointLabel" class="point-label hidden"></span>
+      <span id="userLabel" class="user-label hidden"></span>
+      <button class="btn small" onclick="location.href='index.html'">หน้าหลัก</button>
+    </div>
+  </header>
+
+  <main class="wide-container">
+    <h2>เติมเงินเข้าระบบ</h2>
+    <p>กรุณากรอกจำนวนเงินและแนบสลิปโอนเงิน</p>
+
+    <div style="text-align:left; max-width:400px; margin:0 auto;">
+        <label>จำนวนเงินที่ต้องการเติม (บาท)</label>
+        <input type="number" id="topupAmount" placeholder="เช่น 100" style="margin-bottom:15px;">
+        
+        <label>แนบหลักฐานการโอนเงิน (รูปภาพ)</label>
+        <input type="file" id="slipImg" accept="image/*" style="margin-bottom:20px;">
+    </div>
+
+    <div style="margin-top:12px">
+      <button class="btn" onclick="confirmTopup()">ยืนยันการเติมเงิน</button>
+      <button class="btn ghost" onclick="location.href='index.html'">ยกเลิก</button>
+    </div>
+  </main>
+
+<script>
+// --- ส่วนแสดง User และ Point (Copy ไปใช้ทุกหน้า) ---
+const user = localStorage.getItem('user');
+const userLabel = document.getElementById('userLabel');
+const pointLabel = document.getElementById('pointLabel');
+
+if(user){
+    userLabel.innerText = "User: " + user;
+    userLabel.classList.remove('hidden');
+
+    // ดึง Point ปัจจุบัน
+    let currentPoint = parseFloat(localStorage.getItem('userPoints') || '0');
+    pointLabel.innerText = "เงินในระบบ: " + currentPoint.toLocaleString() + " บ.";
+    pointLabel.classList.remove('hidden');
+} else {
+    // ถ้ายังไม่ล็อกอิน ให้กลับไปหน้าล็อกอิน
+    alert('กรุณาเข้าสู่ระบบก่อน');
+    location.href = 'login.html';
+}
+
+function confirmTopup(){
+    const amountInput = document.getElementById('topupAmount').value;
+    const fileInput = document.getElementById('slipImg').files[0];
+
+    if(!amountInput || amountInput <= 0){
+        alert("กรุณากรอกจำนวนเงินให้ถูกต้อง");
+        return;
+    }
+
+    if(!fileInput){
+        alert("กรุณาแนบรูปภาพสลิป");
+        return;
+    }
+
+    // --- จำลองการเติมเงินสำเร็จ ---
+    let amount = parseFloat(amountInput);
+    let currentPoint = parseFloat(localStorage.getItem('userPoints') || '0');
+    
+    // บวกเพิ่ม
+    let newPoint = currentPoint + amount;
+    localStorage.setItem('userPoints', newPoint);
+
+    alert(`เติมเงินสำเร็จ ${amount} บาท! \nยอดเงินคงเหลือ: ${newPoint} บาท`);
+    location.href = 'index.html';
+}
+</script>
+</body>
+</html>

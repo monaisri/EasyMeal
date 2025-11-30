@@ -17,6 +17,10 @@
     </div>
 
     <div class="top-actions">
+      <button class="btn small" onclick="location.href='topup.html'" style="background:#fff; color:#B33939; border:1px solid #fff; margin-right:5px;">+ เติมเงิน</button>
+      
+      <span id="pointLabel" class="point-label hidden"></span>
+      
       <span id="userLabel" class="user-label hidden"></span>
       <button id="loginBtn" class="btn small" onclick="location.href='login.html'">เข้าสู่ระบบ</button>
       <button id="logoutBtn" class="btn small hidden" onclick="doLogout()">ออกจากระบบ</button>
@@ -55,19 +59,27 @@
         <div class="imgBox"><img src="img/หน้า Menu/บิงซู.jpg" class="shopImg"></div>
         <h3>ร้านบิงซู</h3>
       </div>
-    </div>
+    </div>  
   </main>
 
 <script>
 // --- ส่วนจัดการ User (เหมือนเดิม) ---
+// --- ส่วนจัดการ User ---
 let user = localStorage.getItem('user');
 const userLabel = document.getElementById('userLabel');
 const loginBtn = document.getElementById('loginBtn');
 const logoutBtn = document.getElementById('logoutBtn');
+const pointLabel = document.getElementById('pointLabel'); // ✅ ประกาศตัวแปร
 
 if(user) {
-  userLabel.innerText = "สวัสดีคุณ: " + user; // แสดงเบอร์
+  userLabel.innerText = "User: " + user; 
   userLabel.classList.remove('hidden');
+  
+  // ✅ เพิ่ม: ดึงเงินมาแสดง
+  let currentPoints = parseFloat(localStorage.getItem('userPoints') || '0');
+  pointLabel.innerText = "เงิน: " + currentPoints.toLocaleString() + " บ.";
+  pointLabel.classList.remove('hidden');
+
   loginBtn.classList.add('hidden');
   logoutBtn.classList.remove('hidden');
 } else {
@@ -83,12 +95,7 @@ function doLogout(){
 
 function openShop(shop){
   const user = localStorage.getItem('user');
-  
-  if(!user) {
-    alert('กรุณาเข้าสู่ระบบก่อนเลือกซื้อสินค้า');
-    location.href = 'login.html'; // ดีดไปหน้า Login ทันที
-    return; // หยุดการทำงาน ไม่ให้ไปต่อ
-  }
+
   localStorage.removeItem('cart');
   localStorage.setItem('currentShop', shop);
   location.href = 'menu.html?shop=' + shop;
@@ -117,11 +124,6 @@ createSlideItem(firstClone, true); // true คือบอกว่าเป็�
 function createSlideItem(data, isClone = false) {
     const item = document.createElement('div');
     item.className = 'adItem';
-    
-    // ❌ ลบบรรทัดนี้ออกครับ (ที่เป็นตัวปัญหาทำให้กดได้ทั้งแถบ)
-    // item.onclick = () => openShop(data.shop);
-
-    // ✅ ย้าย onclick มาใส่ใน div class="adCallToAction" แทน
     item.innerHTML = `
         <img src="img/${data.img}" alt="${data.title}">
         <div style="flex-grow:1">
@@ -194,25 +196,31 @@ setInterval(nextSlide, 4000);
 // --- ส่วน Search Engine (ใหม่) ---
 // รวมเมนูทั้งหมดไว้ที่นี่เพื่อใช้ค้นหา
 const allMenus = [
-  { name: 'ตำไทย', shop: 'somtum', shopTH: 'ร้านส้มตำ' },
-  { name: 'ตำปูปลาร้า', shop: 'somtum', shopTH: 'ร้านส้มตำ' },
+  { name: 'ส้มตำไทย', shop: 'somtum', shopTH: 'ร้านส้มตำ' },
+  { name: 'ส้มตำปูปลาร้า', shop: 'somtum', shopTH: 'ร้านส้มตำ' },
   { name: 'คอหมูย่าง', shop: 'somtum', shopTH: 'ร้านส้มตำ' },
+  { name: 'ข้าวเหนียว', shop: 'somtum', shopTH: 'ร้านส้มตำ' },
   
   { name: 'ข้าวผัดกะเพราหมูกรอบ', shop: 'tamsang', shopTH: 'ร้านตามสั่ง' },
   { name: 'ข้าวผัดหมูสับ', shop: 'tamsang', shopTH: 'ร้านตามสั่ง' },
   { name: 'ผัดซีอิ๊วหมู', shop: 'tamsang', shopTH: 'ร้านตามสั่ง' },
   { name: 'ผัดมาม่า', shop: 'tamsang', shopTH: 'ร้านตามสั่ง' },
+  { name: 'ไข่ดาว', shop: 'tamsang', shopTH: 'ร้านตามสั่ง' },
 
   { name: 'บะหมี่น้ำหมูแดง', shop: 'noodle', shopTH: 'ร้านก๋วยเตี๋ยว' },
   { name: 'เย็นตาโฟ', shop: 'noodle', shopTH: 'ร้านก๋วยเตี๋ยว' },
   { name: 'ก๋วยเตี๋ยวเรือ', shop: 'noodle', shopTH: 'ร้านก๋วยเตี๋ยว' },
+  { name: 'เกาเหลา', shop: 'noodle', shopTH: 'ร้านก๋วยเตี๋ยว' },
   
   { name: 'น่องไก่ทอด', shop: 'friedchicken', shopTH: 'ร้านไก่ทอด' },
   { name: 'นักเก็ตไก่', shop: 'friedchicken', shopTH: 'ร้านไก่ทอด' },
+  { name: 'ปีกไก่ทอด', shop: 'friedchicken', shopTH: 'ร้านไก่ทอด' },
+  { name: 'ข้าวเหนียว', shop: 'friedchicken', shopTH: 'ร้านไก่ทอด' },
   
   { name: 'บิงซู นมสด', shop: 'dessert', shopTH: 'ร้านบิงซู' },
   { name: 'บิงซู มัจฉะ', shop: 'dessert', shopTH: 'ร้านบิงซู' },
   { name: 'บิงซู โอวัลติน', shop: 'dessert', shopTH: 'ร้านบิงซู' },
+  { name: 'บิงซู สตรอเบอร์รี่', shop: 'dessert', shopTH: 'ร้านบิงซู' },
 ];
 
 function doSearch() {

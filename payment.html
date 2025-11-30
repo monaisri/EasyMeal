@@ -1,149 +1,154 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ชำระเงิน - EasyMeal</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ชำระเงิน - EasyMeal</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <header class="topbar">
-  <div class="brand">EasyMeal</div>
-  <div class="top-actions">
-     <span id="userLabel" class="user-label hidden"></span>
-     <button class="btn small" onclick="goBackToMenu()">ย้อนกลับ</button>
-</div>
-</header>
+  <header class="topbar">
+    <div class="brand">EasyMeal</div>
+    <div class="top-actions">
+       <span id="pointLabel" class="point-label hidden"></span>
+       <span id="userLabel" class="user-label hidden"></span>
+       <button class="btn small" onclick="goBackToMenu()">ย้อนกลับ</button>
+    </div>
+  </header>
 
-  <main class="wide-container">
-    <h2>ยืนยันการชำระ</h2>
-    <div id="summaryBox"></div>
+  <main class="wide-container">
+    <h2>ยืนยันการชำระ</h2>
+    
+    <div id="summaryBox"></div>
 
-    <p>เลือกวิธีชำระเงิน:</p>
-    <label class="tick"><input type="checkbox" id="payQR" onchange="togglePay('qr')"> ชำระด้วย QR</label>
-    <label class="tick"><input type="checkbox" id="payCash" onchange="togglePay('cash')"> ชำระเงินสดที่เคาน์เตอร์</label>
+    <div style="background: #fdfdfd; padding: 20px; border-radius: 10px; border: 1px solid #eee; margin-top: 20px;">
+        <p style="margin:0; font-size:1.1rem;">ยอดเงินของคุณ: <strong id="myPointDisplay" style="color:green">0</strong> บาท</p>
+        <p style="margin:5px 0 20px 0; font-size:1.1rem;">ยอดที่ต้องชำระ: <strong id="totalPayDisplay" style="color:red">0</strong> บาท</p>
 
-    <button class="btn" style="margin-top:14px" onclick="confirmPayment()">ยืนยันการชำระเงิน</button>
+        <button class="btn" id="payBtn" onclick="confirmPayment()">ยืนยันชำระเงิน (ตัดยอดเงิน)</button>
+        <div style="margin-top:10px">
+            <a href="topup.html" style="color: #B33939; text-decoration: underline; font-size: 0.9em;">เงินไม่พอ? คลิกเพื่อเติมเงิน</a>
+        </div>
+    </div>
 
-  </main>
+  </main>
 
 <script>
+/* ----------------------------------------------------
+   1. ตรวจสอบ User และแสดงยอดเงินคงเหลือ
+---------------------------------------------------- */
+const user = localStorage.getItem('user');
+const userLabel = document.getElementById('userLabel');
+const pointLabel = document.getElementById('pointLabel');
+let currentPoints = 0;
 
-  const user = localStorage.getItem('user');
-  const userLabel = document.getElementById('userLabel');
-  if(user){
+if(user){
     userLabel.innerText = "User: " + user;
     userLabel.classList.remove('hidden');
-  }
+
+    currentPoints = parseFloat(localStorage.getItem('userPoints') || '0');
+    pointLabel.innerText = "เงิน: " + currentPoints.toLocaleString() + " บ.";
+    pointLabel.classList.remove('hidden');
+    
+    // แสดงในกล่องชำระเงินด้วย
+    document.getElementById('myPointDisplay').innerText = currentPoints.toLocaleString();
+} else {
+    alert("กรุณาเข้าสู่ระบบ");
+    location.href = "login.html";
+}
   
+/* ----------------------------------------------------
+   2. ตรวจสอบข้อมูลคำสั่งซื้อ (Draft)
+---------------------------------------------------- */
 const draft = JSON.parse(localStorage.getItem('orderDraft') || 'null');
 if(!draft){
-  alert("ไม่พบคำสั่งซื้อ กรุณากลับไปเลือกเมนู");
-  location.href = "menu.html";
+  alert("ไม่พบคำสั่งซื้อ กรุณากลับไปเลือกเมนู");
+  location.href = "menu.html";
 }
 
-// 🌟 ปรับโครงสร้างเมนูให้ใช้ชื่อเมนูเป็น Key (เหมือนใน menu.html)
+// ข้อมูลราคาเมนู (ต้องตรงกับหน้า menu.html)
 const menus = {
-  somtum: {
-    'ตำไทย': { price: 50 }, 
-    'ตำปูปลาร้า': { price: 60 }, 
-    'คอหมูย่าง': { price: 70 }, 
-    'ข้าวเหนียว': { price: 10 }
-  },
-  tamsang: {
-    'ข้าวผัดกะเพราหมูกรอบ': { price: 55 }, 
-    'ข้าวผัดหมูสับ': { price: 50 }, 
-    'ผัดซีอิ๊วหมู': { price: 55 }, 
-    'ผัดมาม่า': { price: 50 }, 
-    'ไข่ดาว': { price: 10 }
-  },
-  noodle: {
-    'บะหมี่น้ำหมูแดง': { price: 50 }, 
-    'เย็นตาโฟ': { price: 60 }, 
-    'ก๋วยเตี๋ยวเรือ': { price: 55 }, 
-    'เกาเหลา': { price: 60 }
-  },
-  friedchicken: {
-    'น่องไก่ทอด 2 ชิ้น': { price: 40 }, 
-    'นักเก็ตไก่': { price: 55 }, 
-    'ปีกไก่ทอด': { price: 25 },
-    'ข้าวเหนียว': { price: 10 }
-  },
-  dessert: {
-    'บิงซู นมสด': { price: 70 }, 
-    'บิงซู โอวัลติน': { price: 70 }, 
-    'บิงซู มัจฉะ': { price: 70 },
-  }
+  somtum: { 'ตำไทย': { price: 50 }, 'ตำปูปลาร้า': { price: 60 }, 'คอหมูย่าง': { price: 70 }, 'ข้าวเหนียว': { price: 10 } },
+  tamsang: { 'ข้าวผัดกะเพราหมูกรอบ': { price: 55 }, 'ข้าวผัดหมูสับ': { price: 50 }, 'ผัดซีอิ๊วหมู': { price: 55 }, 'ผัดมาม่า': { price: 50 }, 'ไข่ดาว': { price: 10 } },
+  noodle: { 'บะหมี่น้ำหมูแดง': { price: 50 }, 'เย็นตาโฟ': { price: 60 }, 'ก๋วยเตี๋ยวเรือ': { price: 55 }, 'เกาเหลา': { price: 60 } },
+  friedchicken: { 'น่องไก่ทอด 2 ชิ้น': { price: 40 }, 'นักเก็ตไก่': { price: 55 }, 'ปีกไก่ทอด': { price: 25 }, 'ข้าวเหนียว': { price: 10 } },
+  dessert: { 'บิงซู นมสด': { price: 70 }, 'บิงซู โอวัลติน': { price: 70 }, 'บิงซู มัจฉะ': { price: 70 }, 'บิงซู สตรอเบอร์รี่': { price: 70 } }
 };
 
-// --- สรุปคำสั่งซื้อ ---
-let html = "<ul>";
-let total = 0;
+/* ----------------------------------------------------
+   3. สร้างรายการสรุป (Render Summary)
+---------------------------------------------------- */
+let html = "<ul style='padding-left:20px; text-align:left;'>";
+let totalAmount = 0;
 
-draft.cart.forEach(it=>{
-  // 🌟 เปลี่ยนการดึงข้อมูลจาก it.index เป็น it.menuName
-  const item = menus[draft.shop][it.menuName];
-  
-  // ป้องกันข้อผิดพลาดหากไม่พบเมนู
+draft.cart.forEach(it => {
+  const item = menus[draft.shop][it.menuName];
   if (!item) return; 
+  
+  let special = it.special ? 10 : 0;
+  let sum = (item.price + special) * it.qty;
+  totalAmount += sum;
 
-  let special = it.special ? 10 : 0;
-  let sum = (item.price + special) * it.qty;
-  total += sum;
+  // ตรวจสอบสถานะ ใส่กล่อง/ใส่จาน รายเมนู
+  let optText = it.takeAway ? "📦 ใส่กล่อง" : "🍽️ ใส่จาน";
 
-  // 🌟 ใช้ it.menuName สำหรับแสดงชื่อเมนู
-  html += `<li>${it.menuName} x${it.qty} ${it.special ? "(พิเศษ)" : ""} — ${sum} บาท</li>`;
+  html += `<li style="margin-bottom:8px;">
+    <strong>${it.menuName}</strong> ${it.special ? "(พิเศษ)" : ""} 
+    <br><span style="color:#666; font-size:0.9em;">${optText}</span>
+    x${it.qty} — <span style="font-weight:bold">${sum}</span> บาท
+  </li>`;
 });
 html += "</ul>";
-html += `<p><strong>รวมทั้งหมด: ${total} บาท</strong></p>`;
+html += `<hr style="margin:15px 0; border:0; border-top:1px dashed #ccc;">`;
+html += `<p style="font-size:1.2rem;"><strong>รวมทั้งหมด: ${totalAmount.toLocaleString()} บาท</strong></p>`;
 
-if(draft.note) html += `<p>หมายเหตุ: <i>${draft.note}</i></p>`;
-
-// แสดงรูปแบบการรับ
-let pickUpType = '';
-if(draft.eatHere && draft.takeAway) {
-    pickUpType = 'ทานที่ร้าน และ รับกลับบ้าน';
-} else if (draft.eatHere) {
-    pickUpType = 'ทานที่ร้าน';
-} else if (draft.takeAway) {
-    pickUpType = 'รับกลับบ้าน';
+if(draft.note) {
+    html += `<p style="color:red; background:#fff0f0; padding:10px; border-radius:5px;">
+        หมายเหตุถึงร้าน: <i>${draft.note}</i>
+    </p>`;
 }
-
-if(pickUpType) html += `<p>รูปแบบการรับ: ${pickUpType}</p>`;
-
 
 document.getElementById("summaryBox").innerHTML = html;
+document.getElementById("totalPayDisplay").innerText = totalAmount.toLocaleString();
 
-// ----- ฟังก์ชันเลือกแบบติ๊ก -----
-function togglePay(type){
-  if(type === 'qr'){
-    document.getElementById('payCash').checked = false;
-  } else {
-    document.getElementById('payQR').checked = false;
-  }
-}
+/* ----------------------------------------------------
+   4. Functions: ย้อนกลับ & ยืนยันการชำระ
+---------------------------------------------------- */
 function goBackToMenu() {
-    // ดึงร้านล่าสุดที่เราเคยเข้า
     const lastShop = localStorage.getItem('currentShop') || 'somtum';
     location.href = 'menu.html?shop=' + lastShop;
 }
-// ----- ปุ่มยืนยันการชำระ -----
+
 function confirmPayment(){
-  const payQR = document.getElementById('payQR').checked;
-  const payCash = document.getElementById('payCash').checked;
+  // 1. เช็คเงินพอไหม
+  if(currentPoints < totalAmount){
+      alert(`เงินของคุณไม่เพียงพอ (ขาด ${totalAmount - currentPoints} บาท)\nกรุณาเติมเงินเข้าระบบ`);
+      // ถ้าอยากให้เด้งไปหน้าเติมเงินเลย ให้ uncomment บรรทัดล่าง
+      // location.href = 'topup.html';
+      return;
+  }
 
-  if(!payQR && !payCash){
-    alert("กรุณาเลือกวิธีชำระเงิน");
-    return;
-  }
+  // 2. ยืนยันตัดเงิน
+  if(!confirm(`ยืนยันการชำระเงิน ${totalAmount} บาท?`)) return;
 
-  draft.payQR = payQR;
-  draft.payCash = payCash;
-  localStorage.setItem('orderDraft', JSON.stringify(draft));
+  // 3. คำนวณเงินใหม่และบันทึก
+  const newBalance = currentPoints - totalAmount;
+  localStorage.setItem('userPoints', newBalance);
 
-  if(payQR) location.href = "qrcode.html";
-  else location.href = "cash.html";
+  // 4. สร้าง Order ID และบันทึกข้อมูล Order สมบูรณ์
+  const uniqueID = "ORD-" + Math.floor(1000 + Math.random() * 9000);
+  draft.orderID = uniqueID; 
+  draft.paymentMethod = 'Wallet'; 
+  
+  localStorage.setItem('finishedOrder', JSON.stringify(draft));
+
+  // 5. ล้างตะกร้า แล้วไปหน้า Waiting
+  localStorage.removeItem('orderDraft');
+  localStorage.removeItem('cart');
+  
+  alert(`ชำระเงินสำเร็จ! ยอดคงเหลือ ${newBalance} บาท`);
+  location.href = 'waiting.html'; 
 }
 </script>
 

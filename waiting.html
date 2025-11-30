@@ -10,7 +10,9 @@
   <header class="topbar">
     <div class="brand">EasyMeal</div>
     <div class="top-actions">
+      <span id="pointLabel" class="point-label hidden"></span>
       <span id="userLabel" class="user-label hidden"></span>
+      
       <button class="btn small" onclick="location.href='index.html'">หน้าหลัก</button>
     </div>
   </header>
@@ -85,11 +87,21 @@ const menus = {
 /* ----------------------------------------------------
    2. แสดง User
 ---------------------------------------------------- */
+/* ----------------------------------------------------
+   2. แสดง User
+---------------------------------------------------- */
 const user = localStorage.getItem('user');
 const userLabel = document.getElementById('userLabel');
+const pointLabel = document.getElementById('pointLabel'); // ✅ เพิ่ม
+
 if(user){
   userLabel.innerText = "User: " + user;
   userLabel.classList.remove('hidden');
+
+  // ✅ แสดงยอดเงิน
+  let currentPoints = parseFloat(localStorage.getItem('userPoints') || '0');
+  pointLabel.innerText = "เงิน: " + currentPoints.toLocaleString() + " บ.";
+  pointLabel.classList.remove('hidden');
 }
 
 /* ----------------------------------------------------
@@ -134,8 +146,7 @@ if(finishedOrder && finishedOrder.cart) {
   
   const shopName = finishedOrder.shop; 
 
-  finishedOrder.cart.forEach(item => {
-
+finishedOrder.cart.forEach(item => {
     const menuInfo = menus[shopName]?.[item.menuName];
     
     if(menuInfo) {
@@ -145,12 +156,16 @@ if(finishedOrder && finishedOrder.cart) {
         let sumPrice = pricePerItem * item.qty;
         totalMoney += sumPrice;
 
+        // ✅ เพิ่มการแสดงผลตรงนี้
+        let optText = item.takeAway ? "📦 ใส่กล่อง" : "🍽️ ใส่จาน";
+
         html += `
           <li style="display:flex; justify-content:space-between; margin-bottom:6px; border-bottom:1px solid #f0f0f0; padding-bottom:4px;">
-            <span>
-                ${item.menuName} ${item.special ? '(พิเศษ)' : ''} 
+            <div>
+                ${item.menuName} ${item.special ? '(พิเศษ)' : ''} <br>
+                <span style="font-size:0.85em; color:#777;">${optText}</span>
                 <span style="color:#888; font-size:0.9em;">x${item.qty}</span>
-            </span>
+            </div>
             <span>${sumPrice} บ.</span>
           </li>
         `;
@@ -164,8 +179,8 @@ if(finishedOrder && finishedOrder.cart) {
   
   // แสดงรูปแบบการรับ
   let eatType = "";
-  if(finishedOrder.eatHere) eatType = "ทานที่ร้าน";
-  if(finishedOrder.takeAway) eatType = "กลับบ้าน";
+  if(finishedOrder.eatHere) eatType = "ใส่จาน";
+  if(finishedOrder.takeAway) eatType = "ใส่กล่อง";
   if(eatType) {
       html += `<p style="font-size:0.9em; color:#555; margin-top:5px;">รับสินค้า: ${eatType}</p>`;
   }
@@ -190,8 +205,8 @@ setTimeout(() => {
   status.style.color = 'green';
   
   // เล่นเสียง
-  new Audio('sound.mp3').play().catch(e=>{});
-
+  new Audio('sound.mp3').play().catch(e=>console.error(e));
+  volume: 10;
 }, 10000); // 10000 ms = 10 วินาที
 
 </script>

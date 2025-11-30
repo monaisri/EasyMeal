@@ -6,6 +6,33 @@
   <title>เข้าสู่ระบบ - EasyMeal</title>
   <link rel="stylesheet" href="style.css" />
   <script src="data.js"></script>
+  
+  <style>
+    /* เพิ่ม CSS เฉพาะหน้า Login เพื่อจัดปุ่มลูกตา */
+    .password-container {
+      position: relative;
+      width: 100%;
+    }
+    .password-container input {
+      width: 100%;
+      padding-right: 40px; /* เว้นที่ด้านขวาไว้ใส่ปุ่มลูกตา */
+    }
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: #666;
+      background: none;
+      border: none;
+      outline: none;
+    }
+    .toggle-password:hover {
+      color: #333;
+    }
+  </style>
 </head>
 <body>
   <header class="topbar">
@@ -17,9 +44,23 @@
 
   <main class="wide-container"> 
     <h2>เข้าสู่ระบบนักศึกษา</h2>
-    <p>กรุณากรอกรหัสนักศึกษา (มหาวิทยาลัยศรีปทุม)</p>
     
-    <input id="studentIdInput" placeholder="รหัสนักศึกษา 8 หลัก (ไม่ต้องมีขีด)" maxlength="8" />
+    <div style="text-align: left; margin-bottom: 15px;">
+        <label style="font-weight:bold; display:block; margin-bottom:5px;">รหัสนักศึกษา</label>
+        <input id="studentIdInput" type="tel" placeholder="กรอกรหัสนักศึกษา 8 หลัก" maxlength="8" />
+    </div>
+
+    <div style="text-align: left; margin-bottom: 20px;">
+        <label style="font-weight:bold; display:block; margin-bottom:5px;">รหัสผ่าน (เลขบัตรประชาชน)</label>
+        
+        <div class="password-container">
+            <input id="passwordInput" type="password" placeholder="กรอกเลขบัตรประชาชน 13 หลัก" maxlength="13" />
+            
+            <button class="toggle-password" onclick="togglePassword()" title="แสดงรหัสผ่าน">
+                👁️
+            </button>
+        </div>
+    </div>
     
     <div style="margin-top:8px">
       <button class="btn" onclick="doLogin()">ยืนยัน</button>
@@ -28,15 +69,37 @@
   </main>
 
 <script>
+/* ฟังก์ชันสลับการมองเห็นรหัสผ่าน */
+function togglePassword() {
+    const pwdInput = document.getElementById('passwordInput');
+    const btn = document.querySelector('.toggle-password');
+    
+    if (pwdInput.type === "password") {
+        pwdInput.type = "text";
+        btn.innerText = "🙈"; // เปลี่ยนรูปเป็นปิดตา (หรือสัญลักษณ์อื่น)
+    } else {
+        pwdInput.type = "password";
+        btn.innerText = "👁️"; // เปลี่ยนรูปกลับเป็นลูกตา
+    }
+}
+
 function doLogin(){
   const stdId = document.getElementById('studentIdInput').value.trim();
+  const pwd = document.getElementById('passwordInput').value.trim();
   
-  // ตรวจสอบว่าเป็นตัวเลข 8 หลัก หรือไม่
+  // 1. ตรวจสอบรหัสนักศึกษา (8 หลัก)
   if(!/^\d{8}$/.test(stdId)){
     alert('กรุณากรอกรหัสนักศึกษา 8 หลักให้ถูกต้อง');
     return;
   }
+
+  // 2. ตรวจสอบรหัสผ่าน (เลขบัตรประชาชน 13 หลัก)
+  if(!/^\d{13}$/.test(pwd)){
+    alert('กรุณากรอกรหัสผ่าน (เลขบัตรปชช.) 13 หลักให้ถูกต้อง');
+    return;
+  }
   
+  // Login สำเร็จ
   localStorage.setItem('user', stdId);
   alert('เข้าสู่ระบบสำเร็จ');
   location.href = 'index.html';

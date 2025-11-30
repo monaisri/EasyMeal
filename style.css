@@ -257,6 +257,7 @@ input:focus, textarea:focus { border-color: var(--accent); }
   padding: 8px 15px;
   border-radius: 8px;
   font-weight: 600;
+  margin-right: 2.5%;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -367,3 +368,21 @@ h2 { margin-bottom: 1.5rem; color: #333; }
 
 #queueNumber { font-size: 4rem; margin: 10px 0; color: var(--accent); line-height: 1; }
 #queueStatus { font-size: 1.1rem; color: var(--muted); }
+
+.point-label {
+    background: #fff;
+    color: #B33939; /* สีแดงเข้ม ให้ดูเด่น */
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-right: 8px; /* เว้นระยะห่างจาก User Label */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.user-label {
+    /* (ถ้าเดิมไม่มี class นี้ใน css ให้เพิ่มอันนี้เพื่อให้ userLabel ดูดีขึ้นด้วย) */
+    color: #fff;
+    font-weight: 500;
+    margin-right: 10px;
+}
